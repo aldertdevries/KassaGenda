@@ -11,7 +11,9 @@ dependencies: direct hostbaar op GitHub Pages.
 | `over.html` | Over OberPoes |
 | `admin.html` | Afgesloten beheer: aanvragen goedkeuren/afkeuren, tenants beheren |
 | `tenant.html?code=X` | Openbare boekingspagina van één actieve tenant (deelbaar / iframe) |
-| `beheer.html?code=X` | Beheer van één tenant: agenda, openingstijden, profiel (login via e-mail-/sms-verificatiecode) |
+| `beheer.html?code=X` | Beheer van één tenant: agenda, facturatie, openingstijden, profiel (login via e-mail-/sms-verificatiecode) |
+| `factuur.html?id=X` | Printbare factuur (logo, regels, btw-uitsplitsing) — "PDF-bijlage" in de demo |
+| `betaal.html?factuur=X` | Demo-betaalpagina (Mollie-simulatie) die de factuur op Betaald zet |
 | `tests.html` | Browser-tests voor database-, agenda- en validatielogica |
 
 ## Demo-inloggegevens
