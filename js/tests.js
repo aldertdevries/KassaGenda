@@ -1,0 +1,87 @@
+// Tests voor validatie.js en db.js. Draait in de browser (tests.html)
+// en in Node (scripts/run-tests.mjs) met localStorage/canvas-shims.
+const resultaten = [];
+function test(naam, fn) {
+  try { fn(); resultaten.push({ naam, ok: true }); }
+  catch (e) { resultaten.push({ naam, ok: false, fout: e.message }); }
+}
+function assert(cond, msg) { if (!cond) throw new Error(msg || 'assertion faalt'); }
+
+// Schone lei: tests draaien op de echte localStorage van deze pagina
+OberPoesDb.wisAlles();
+
+// --- Validatie ---
+test('email: geldig', () => assert(Validatie.email('a@b.nl')));
+test('email: ongeldig', () => assert(!Validatie.email('geen-email')));
+test('postcode: geldig met en zonder spatie', () =>
+  assert(Validatie.postcode('1234 AB') && Validatie.postcode('1234ab')));
+test('postcode: ongeldig', () =>
+  assert(!Validatie.postcode('0123 AB') && !Validatie.postcode('12345')));
+test('telefoon: geldig 06 / +31 / vast', () =>
+  assert(Validatie.telefoon('0612345678') && Validatie.telefoon('+31612345678')
+    && Validatie.telefoon('020-1234567')));
+test('telefoon: ongeldig', () =>
+  assert(!Validatie.telefoon('12345') && !Validatie.telefoon('0012345678')));
+test('kvk: precies 8 cijfers', () =>
+  assert(Validatie.kvk('12345678') && !Validatie.kvk('1234567') && !Validatie.kvk('1234567a')));
+test('huisnummer: 12, 12a, 12-2 geldig; abc ongeldig', () =>
+  assert(Validatie.huisnummer('12') && Validatie.huisnummer('12a')
+    && Validatie.huisnummer('12-2') && !Validatie.huisnummer('abc')));
+
+// --- Database ---
+test('lege database geeft lege lijst', () =>
+  assert(OberPoesDb.alleTenants().length === 0));
+test('corrupte data → verse database', () => {
+  localStorage.setItem('oberpoes_db', '{kapot');
+  assert(OberPoesDb.alleTenants().length === 0);
+});
+test('genereerCode: 6 tekens, geen verwarrende tekens', () => {
+  for (let i = 0; i < 50; i++) {
+    const code = OberPoesDb.genereerCode();
+    assert(/^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$/.test(code), 'kreeg: ' + code);
+  }
+});
+test('voegToe: zet code, status Aangevraagd en datum', () => {
+  OberPoesDb.wisAlles();
+  const t = OberPoesDb.voegToe({ naam: 'Test BV' });
+  assert(t.code.length === 6 && t.status === 'Aangevraagd' && !!t.aangevraagdOp);
+  assert(OberPoesDb.alleTenants().length === 1);
+});
+test('vindTenant: case-insensitive', () => {
+  const t = OberPoesDb.alleTenants()[0];
+  assert(OberPoesDb.vindTenant(t.code.toLowerCase()) !== null);
+});
+test('wijzig: past velden aan maar nooit de code', () => {
+  const t = OberPoesDb.alleTenants()[0];
+  const na = OberPoesDb.wijzig(t.code, { naam: 'Nieuw BV', code: 'HACKED' });
+  assert(na.naam === 'Nieuw BV' && na.code === t.code);
+});
+test('zetStatus: wijzigt status', () => {
+  const t = OberPoesDb.alleTenants()[0];
+  assert(OberPoesDb.zetStatus(t.code, 'Actief').status === 'Actief');
+});
+test('wijzig van onbekende code geeft null', () =>
+  assert(OberPoesDb.wijzig('XXXXXX', { naam: 'x' }) === null));
+test('demo-data: 3 tenants met gevarieerde status', () => {
+  OberPoesDb.wisAlles();
+  OberPoesDb.laadDemoData();
+  const alle = OberPoesDb.alleTenants();
+  assert(alle.length === 3);
+  assert(alle.some((t) => t.status === 'Aangevraagd')
+    && alle.some((t) => t.status === 'Actief')
+    && alle.some((t) => t.status === 'Inactief'));
+});
+
+OberPoesDb.wisAlles();
+
+const geslaagd = resultaten.filter((r) => r.ok).length;
+if (typeof document !== 'undefined' && document.getElementById('resultaten')) {
+  document.getElementById('resultaten').innerHTML = resultaten.map((r) =>
+    `<div class="${r.ok ? 'ok' : 'fail'}">${r.ok ? '✔' : '✘'} ${r.naam}${r.fout ? ' — ' + r.fout : ''}</div>`
+  ).join('') + `<p>${geslaagd}/${resultaten.length} geslaagd</p>`;
+} else if (typeof console !== 'undefined') {
+  resultaten.forEach((r) =>
+    console.log(`${r.ok ? 'PASS' : 'FAIL'} ${r.naam}${r.fout ? ' — ' + r.fout : ''}`));
+  console.log(`${geslaagd}/${resultaten.length} geslaagd`);
+  if (typeof process !== 'undefined' && geslaagd !== resultaten.length) process.exitCode = 1;
+}
