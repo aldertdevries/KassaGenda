@@ -117,94 +117,111 @@
 
   // --- Factureren van een afspraak ---
   function renderFactuurOpbouw(afspraakId) {
-    const t = huidigeTenant();
     const afspraak = OberPoesDb.afsprakenVoor(code).find((a) => a.id === afspraakId);
     if (!afspraak) return;
-    const losseRegels = [];
+    const conceptRegels = [];
 
-    const voorgedefinieerd = (t.factuurRegels || []).map((r) => `
-      <label style="display:block">
-        <input type="checkbox" class="regel-keuze" data-regel-id="${r.id}">
-        ${r.naam} — ${btwLabel(r.btw)} — ${Facturatie.euro(r.bedragCent)}
-      </label>`).join('') || '<p><em>Nog geen voorgedefinieerde regels (zie tabblad Factuurregels).</em></p>';
+    const bronOpties = (huidigeTenant().factuurRegels || []).map((r) =>
+      `<option value="${r.id}">${r.naam} (${btwLabel(r.btw)}, ${Facturatie.euro(r.bedragCent)})</option>`).join('');
 
     el('factuur-opbouw').innerHTML = `
       <div class="kaart">
         <h2>Factuur voor ${afspraak.naam} — ${afspraak.datum} om ${afspraak.tijd}</h2>
-        <div class="veld"><label>Voorgedefinieerde regels</label>${voorgedefinieerd}</div>
         <div class="veld">
-          <label>Nieuwe regel</label>
-          <div class="velden-rij">
-            <input id="nieuw-naam" type="text" placeholder="Omschrijving">
-            <select id="nieuw-btw"><option value="hoog">21% (hoog)</option><option value="laag">9% (laag)</option></select>
-            <input id="nieuw-bedrag" type="number" step="0.01" min="0" placeholder="Bedrag incl. btw (€)">
-            <button type="button" class="knop knop-secundair" id="knop-nieuw-bij">Toevoegen</button>
-          </div>
-          <label><input type="checkbox" id="nieuw-bewaar"> Ook bewaren als voorgedefinieerde regel</label>
-          <span class="fout" id="fout-nieuw"></span>
+          <label for="regel-bron">Regel kiezen of nieuw maken</label>
+          <select id="regel-bron">
+            <option value="">— nieuwe regel —</option>
+            ${bronOpties}
+          </select>
         </div>
-        <div id="losse-lijst"></div>
-        <div class="melding melding-info" id="factuur-totaal">Nog geen regels gekozen.</div>
+        <div class="velden-rij">
+          <div class="veld"><label for="opbouw-naam">Omschrijving</label>
+            <input id="opbouw-naam" type="text"></div>
+          <div class="veld"><label for="opbouw-btw">Btw</label>
+            <select id="opbouw-btw"><option value="hoog">21% (hoog)</option><option value="laag">9% (laag)</option></select></div>
+          <div class="veld"><label for="opbouw-bedrag">Bedrag incl. btw (€)</label>
+            <input id="opbouw-bedrag" type="number" step="0.01" min="0"></div>
+        </div>
+        <label><input type="checkbox" id="opbouw-bewaar"> Ook bewaren als voorgedefinieerde regel</label>
+        <span class="fout" id="fout-opbouw"></span><br>
+        <button class="knop knop-secundair" id="knop-opbouw-toevoegen">Toevoegen aan factuur</button>
+        <h3>Factuurregels op deze factuur</h3>
+        <div id="concept-lijst"></div>
+        <div class="melding melding-info" id="factuur-totaal">Nog geen regels toegevoegd.</div>
         <span class="fout" id="fout-factuur"></span>
         <button class="knop" id="knop-factureer">Factureren en mailen</button>
         <button class="knop knop-secundair" id="knop-opbouw-sluit">Sluiten</button>
       </div>`;
     el('factuur-opbouw').scrollIntoView({ behavior: 'smooth' });
 
-    function gekozenRegels() {
-      const vaste = [...el('factuur-opbouw').querySelectorAll('.regel-keuze:checked')]
-        .map((c) => (huidigeTenant().factuurRegels || []).find((r) => r.id === c.dataset.regelId))
-        .filter(Boolean)
-        .map(({ naam, btw, bedragCent }) => ({ naam, btw, bedragCent }));
-      return [...vaste, ...losseRegels];
-    }
-    function werkTotaalBij() {
-      const regels = gekozenRegels();
-      if (regels.length === 0) {
-        el('factuur-totaal').textContent = 'Nog geen regels gekozen.';
-        return;
+    function renderConcept() {
+      el('concept-lijst').innerHTML = conceptRegels.length === 0
+        ? '<p><em>Nog geen regels toegevoegd.</em></p>'
+        : `<table class="tabel"><tbody>${conceptRegels.map((r, i) => `
+            <tr>
+              <td>${r.naam}</td>
+              <td>${btwLabel(r.btw)}</td>
+              <td>${Facturatie.euro(r.bedragCent)}</td>
+              <td><button class="knop knop-gevaar knop-klein" data-concept-weg="${i}">Verwijderen</button></td>
+            </tr>`).join('')}</tbody></table>`;
+      el('concept-lijst').querySelectorAll('button[data-concept-weg]').forEach((k) => {
+        k.addEventListener('click', () => {
+          conceptRegels.splice(Number(k.dataset.conceptWeg), 1);
+          renderConcept();
+        });
+      });
+      if (conceptRegels.length === 0) {
+        el('factuur-totaal').textContent = 'Nog geen regels toegevoegd.';
+      } else {
+        const tot = Facturatie.totalen(conceptRegels);
+        el('factuur-totaal').innerHTML =
+          `Totaal: <strong>${Facturatie.euro(tot.inclCent)}</strong> incl. btw `
+          + `(excl. ${Facturatie.euro(tot.exclCent)}, btw 21%: ${Facturatie.euro(tot.btwHoogCent)}, `
+          + `btw 9%: ${Facturatie.euro(tot.btwLaagCent)})`;
       }
-      const tot = Facturatie.totalen(regels);
-      el('factuur-totaal').innerHTML =
-        `Totaal: <strong>${Facturatie.euro(tot.inclCent)}</strong> incl. btw `
-        + `(excl. ${Facturatie.euro(tot.exclCent)}, btw 21%: ${Facturatie.euro(tot.btwHoogCent)}, `
-        + `btw 9%: ${Facturatie.euro(tot.btwLaagCent)})`;
     }
-    el('factuur-opbouw').querySelectorAll('.regel-keuze').forEach((c) =>
-      c.addEventListener('change', werkTotaalBij));
+    renderConcept();
 
-    el('knop-nieuw-bij').addEventListener('click', () => {
-      const naam = el('nieuw-naam').value.trim();
-      const bedragCent = bedragNaarCent(el('nieuw-bedrag').value);
+    el('regel-bron').addEventListener('change', () => {
+      const gekozen = (huidigeTenant().factuurRegels || [])
+        .find((r) => r.id === el('regel-bron').value);
+      el('opbouw-naam').value = gekozen ? gekozen.naam : '';
+      el('opbouw-btw').value = gekozen ? gekozen.btw : 'hoog';
+      el('opbouw-bedrag').value = gekozen ? (gekozen.bedragCent / 100).toFixed(2) : '';
+      el('fout-opbouw').textContent = '';
+    });
+
+    el('knop-opbouw-toevoegen').addEventListener('click', () => {
+      const naam = el('opbouw-naam').value.trim();
+      const bedragCent = bedragNaarCent(el('opbouw-bedrag').value);
       if (naam.length < 2 || bedragCent === null) {
-        el('fout-nieuw').textContent = 'Vul een omschrijving en een bedrag groter dan 0 in.';
+        el('fout-opbouw').textContent = 'Vul een omschrijving en een bedrag groter dan 0 in.';
         return;
       }
-      el('fout-nieuw').textContent = '';
-      const regel = { naam, btw: el('nieuw-btw').value, bedragCent };
-      losseRegels.push(regel);
-      if (el('nieuw-bewaar').checked) {
+      el('fout-opbouw').textContent = '';
+      const regel = { naam, btw: el('opbouw-btw').value, bedragCent };
+      conceptRegels.push(regel);
+      if (el('opbouw-bewaar').checked) {
         OberPoesDb.zetFactuurRegels(code, [
           ...(huidigeTenant().factuurRegels || []),
           { id: OberPoesDb.genereerCode(), ...regel },
         ]);
+        el('opbouw-bewaar').checked = false;
       }
-      el('nieuw-naam').value = '';
-      el('nieuw-bedrag').value = '';
-      el('losse-lijst').innerHTML = losseRegels.map((r) =>
-        `<p>+ ${r.naam} — ${btwLabel(r.btw)} — ${Facturatie.euro(r.bedragCent)}</p>`).join('');
-      werkTotaalBij();
+      el('regel-bron').value = '';
+      el('opbouw-naam').value = '';
+      el('opbouw-bedrag').value = '';
+      renderConcept();
     });
 
     el('knop-opbouw-sluit').addEventListener('click', () => { el('factuur-opbouw').innerHTML = ''; });
 
     el('knop-factureer').addEventListener('click', () => {
-      const regels = gekozenRegels();
-      if (regels.length === 0) {
-        el('fout-factuur').textContent = 'Kies of maak minimaal één factuurregel.';
+      if (conceptRegels.length === 0) {
+        el('fout-factuur').textContent = 'Voeg minimaal één factuurregel toe.';
         return;
       }
-      const factuur = OberPoesDb.maakFactuur({ tenantCode: code, afspraakId, regels });
+      const factuur = OberPoesDb.maakFactuur({ tenantCode: code, afspraakId, regels: conceptRegels });
       if (!factuur) {
         el('fout-factuur').textContent = 'Deze afspraak is al gefactureerd.';
         return;
