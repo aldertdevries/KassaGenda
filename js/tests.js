@@ -72,6 +72,35 @@ test('demo-data: 3 tenants met gevarieerde status', () => {
     && alle.some((t) => t.status === 'Inactief'));
 });
 
+// --- Agenda ---
+test('standaardOpeningstijden: ma-vr open, za/zo dicht', () => {
+  const t = Agenda.standaardOpeningstijden();
+  assert(t.ma.open && t.vr.open && !t.za.open && !t.zo.open);
+  assert(t.ma.van === '09:00' && t.ma.tot === '17:00');
+});
+test('komendeOpenDagen: week vanaf maandag geeft 5 werkdagen', () => {
+  const dagen = Agenda.komendeOpenDagen(Agenda.standaardOpeningstijden(), '2026-07-13', 7);
+  assert(dagen.length === 5, 'kreeg ' + dagen.length);
+  assert(dagen[0] === '2026-07-13' && dagen[4] === '2026-07-17');
+});
+test('sloten: 9-17 met 30 min geeft 16 sloten', () => {
+  const s = Agenda.sloten(Agenda.standaardOpeningstijden(), 30, '2026-07-13', []);
+  assert(s.length === 16 && s[0].tijd === '09:00' && s[15].tijd === '16:30');
+  assert(s.every((x) => x.vrij));
+});
+test('sloten: geboekt slot is niet vrij', () => {
+  const s = Agenda.sloten(Agenda.standaardOpeningstijden(), 30,
+    '2026-07-13', [{ datum: '2026-07-13', tijd: '10:00' }]);
+  assert(s.find((x) => x.tijd === '10:00').vrij === false);
+  assert(s.find((x) => x.tijd === '10:30').vrij === true);
+});
+test('sloten: dichte dag geeft lege lijst', () => {
+  assert(Agenda.sloten(Agenda.standaardOpeningstijden(), 30, '2026-07-12', []).length === 0);
+});
+test('sloten: 60 min duur geeft 8 sloten', () => {
+  assert(Agenda.sloten(Agenda.standaardOpeningstijden(), 60, '2026-07-13', []).length === 8);
+});
+
 OberPoesDb.wisAlles();
 
 const geslaagd = resultaten.filter((r) => r.ok).length;
