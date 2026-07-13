@@ -153,8 +153,7 @@
         <div class="melding melding-info">
           <strong>Portalen</strong><br>
           Boekingspagina: <a href="tenant.html?code=${t.code}" target="_blank">tenant.html?code=${t.code}</a><br>
-          Beheer: <a href="beheer.html?code=${t.code}" target="_blank">beheer.html?code=${t.code}</a><br>
-          Beheerwachtwoord: <span class="demo-code">${t.beheerWachtwoord}</span>
+          Beheer: <a href="beheer.html?code=${t.code}" target="_blank">beheer.html?code=${t.code}</a>
         </div>` : ''}
         <div class="velden-rij">
           <img src="${t.logo}" alt="Logo" class="logo-preview">

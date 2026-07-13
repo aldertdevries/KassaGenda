@@ -106,15 +106,13 @@ test('migratie: oude database zonder afspraken-veld werkt', () => {
   localStorage.setItem('oberpoes_db', JSON.stringify({ tenants: [] }));
   assert(Array.isArray(OberPoesDb.alleAfspraken()));
 });
-test('activeerTenant: zet status, wachtwoord en defaults; idempotent', () => {
+test('activeerTenant: zet status en defaults, geen wachtwoord', () => {
   OberPoesDb.wisAlles();
   const t = OberPoesDb.voegToe({ naam: 'Activeer BV' });
   const na = OberPoesDb.activeerTenant(t.code);
   assert(na.status === 'Actief');
-  assert(/^[a-z2-9]{8}$/.test(na.beheerWachtwoord), 'wachtwoord: ' + na.beheerWachtwoord);
+  assert(na.beheerWachtwoord === undefined, 'wachtwoordloos: geen beheerWachtwoord');
   assert(na.openingstijden.ma.open === true && na.slotDuur === 30);
-  const tweede = OberPoesDb.activeerTenant(t.code);
-  assert(tweede.beheerWachtwoord === na.beheerWachtwoord, 'wachtwoord mag niet wijzigen');
 });
 test('maakAfspraak: slaat op en weigert dubbelboeking', () => {
   const t = OberPoesDb.alleTenants()[0];
@@ -146,11 +144,11 @@ test('zetOpeningstijden: wijzigt tijden en slotduur', () => {
   const na = OberPoesDb.zetOpeningstijden(t.code, tijden, 60);
   assert(na.openingstijden.za.open === true && na.slotDuur === 60);
 });
-test('demo-data: actieve tenant heeft wachtwoord en afspraken', () => {
+test('demo-data: actieve tenant heeft openingstijden en afspraken', () => {
   OberPoesDb.wisAlles();
   OberPoesDb.laadDemoData();
   const actief = OberPoesDb.alleTenants().find((t) => t.status === 'Actief');
-  assert(!!actief.beheerWachtwoord && !!actief.openingstijden);
+  assert(!!actief.openingstijden && actief.slotDuur === 30);
   assert(OberPoesDb.afsprakenVoor(actief.code).length === 2);
 });
 

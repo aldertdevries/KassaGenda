@@ -3,7 +3,6 @@ const OberPoesDb = (() => {
   const DB_SLEUTEL = 'oberpoes_db';
   // Zonder 0/O/1/I/L om verwarring te voorkomen.
   const CODE_TEKENS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  const WACHTWOORD_TEKENS = 'abcdefghjkmnpqrstuvwxyz23456789';
 
   function lees() {
     try {
@@ -62,9 +61,6 @@ const OberPoesDb = (() => {
       if (!bestaand) return null;
       return this.wijzig(code, {
         status: 'Actief',
-        beheerWachtwoord: bestaand.beheerWachtwoord
-          || Array.from({ length: 8 },
-            () => WACHTWOORD_TEKENS[Math.floor(Math.random() * WACHTWOORD_TEKENS.length)]).join(''),
         openingstijden: bestaand.openingstijden || Agenda.standaardOpeningstijden(),
         slotDuur: bestaand.slotDuur || 30,
       });
