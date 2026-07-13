@@ -47,7 +47,7 @@
   function renderTijden() {
     el('tijd-blok').classList.remove('verborgen');
     const sloten = Agenda.sloten(tenant.openingstijden, tenant.slotDuur || 30,
-      gekozenDatum, OberPoesDb.afsprakenVoor(tenant.code));
+      gekozenDatum, OberPoesDb.afsprakenVoor(tenant.code), tenant.blokkades || []);
     el('tijd-keuze').innerHTML = sloten.map((s) =>
       `<button type="button" class="knop knop-secundair${s.tijd === gekozenTijd ? ' gekozen' : ''}" data-tijd="${s.tijd}" ${s.vrij ? '' : 'disabled'}>${s.tijd}</button>`
     ).join('') || '<em>Geen tijden beschikbaar op deze dag.</em>';

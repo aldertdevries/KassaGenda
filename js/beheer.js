@@ -342,6 +342,18 @@
   // --- Openingstijden ---
   function renderTijden() {
     const t = huidigeTenant();
+    const vandaag = new Date().toISOString().slice(0, 10);
+    const blokkades = Agenda.actieveBlokkades(t.blokkades || [], vandaag);
+    const dagOpties = Agenda.DAG_SLEUTELS
+      .map((d, i) => `<option value="${d}">${Agenda.DAG_NAMEN[i]}</option>`).join('');
+    const blokRijen = blokkades.map((b) => `
+      <tr>
+        <td>${b.omschrijving || '—'}</td>
+        <td>${b.type === 'wekelijks'
+          ? 'wekelijks ' + Agenda.DAG_NAMEN[Agenda.DAG_SLEUTELS.indexOf(b.dag)]
+          : new Date(b.datum + 'T12:00:00').toLocaleDateString('nl-NL')} ${b.van}–${b.tot}</td>
+        <td><button class="knop knop-gevaar knop-klein" data-blok-weg="${b.id}">Verwijderen</button></td>
+      </tr>`).join('');
     const rijen = Agenda.DAG_SLEUTELS.map((dag, i) => {
       const d = t.openingstijden[dag];
       return `
@@ -366,6 +378,29 @@
         </div>
         <button class="knop" id="knop-tijden-opslaan">Opslaan</button>
         <span class="melding melding-goed verborgen" id="tijden-opgeslagen">Opgeslagen.</span>
+      </div>
+      <div class="kaart">
+        <h2>Niet-boekbare perioden</h2>
+        ${blokkades.length === 0 ? '<p>Geen niet-boekbare perioden.</p>' : `
+        <table class="tabel">
+          <thead><tr><th>Omschrijving</th><th>Wanneer</th><th></th></tr></thead>
+          <tbody>${blokRijen}</tbody>
+        </table>`}
+        <h3>Periode toevoegen</h3>
+        <div class="velden-rij">
+          <div class="veld"><label for="blok-type">Type</label>
+            <select id="blok-type"><option value="eenmalig">Eenmalig</option><option value="wekelijks">Wekelijks</option></select></div>
+          <div class="veld" id="blok-datum-veld"><label for="blok-datum">Datum</label>
+            <input id="blok-datum" type="date"></div>
+          <div class="veld verborgen" id="blok-dag-veld"><label for="blok-dag">Weekdag</label>
+            <select id="blok-dag">${dagOpties}</select></div>
+          <div class="veld"><label for="blok-van">Van</label><input id="blok-van" type="time" value="12:00"></div>
+          <div class="veld"><label for="blok-tot">Tot</label><input id="blok-tot" type="time" value="13:00"></div>
+        </div>
+        <div class="veld"><label for="blok-omschrijving">Omschrijving (optioneel)</label>
+          <input id="blok-omschrijving" type="text"></div>
+        <span class="fout" id="fout-blok"></span>
+        <button class="knop" id="knop-blok-toevoegen">Toevoegen</button>
       </div>`;
     el('knop-tijden-opslaan').addEventListener('click', () => {
       const nieuw = {};
@@ -378,6 +413,41 @@
       });
       OberPoesDb.zetOpeningstijden(code, nieuw, Number(el('slot-duur').value));
       el('tijden-opgeslagen').classList.remove('verborgen');
+    });
+    el('blok-type').addEventListener('change', () => {
+      const wekelijks = el('blok-type').value === 'wekelijks';
+      el('blok-datum-veld').classList.toggle('verborgen', wekelijks);
+      el('blok-dag-veld').classList.toggle('verborgen', !wekelijks);
+    });
+    el('view-tijden').querySelectorAll('button[data-blok-weg]').forEach((k) => {
+      k.addEventListener('click', () => {
+        OberPoesDb.zetBlokkades(code,
+          (huidigeTenant().blokkades || []).filter((b) => b.id !== k.dataset.blokWeg));
+        renderTijden();
+      });
+    });
+    el('knop-blok-toevoegen').addEventListener('click', () => {
+      const type = el('blok-type').value;
+      const datum = el('blok-datum').value;
+      const van = el('blok-van').value;
+      const tot = el('blok-tot').value;
+      if (!van || !tot || van >= tot) {
+        el('fout-blok').textContent = 'Vul geldige tijden in (van moet vóór tot liggen).';
+        return;
+      }
+      if (type === 'eenmalig' && !datum) {
+        el('fout-blok').textContent = 'Kies een datum voor een eenmalige periode.';
+        return;
+      }
+      const blokkade = {
+        id: OberPoesDb.genereerCode(),
+        type, van, tot,
+        omschrijving: el('blok-omschrijving').value.trim(),
+      };
+      if (type === 'eenmalig') blokkade.datum = datum;
+      else blokkade.dag = el('blok-dag').value;
+      OberPoesDb.zetBlokkades(code, [...(huidigeTenant().blokkades || []), blokkade]);
+      renderTijden();
     });
   }
 
