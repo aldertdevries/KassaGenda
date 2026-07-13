@@ -47,7 +47,8 @@
   function renderTijden() {
     el('tijd-blok').classList.remove('verborgen');
     const sloten = Agenda.sloten(tenant.openingstijden, tenant.slotDuur || 30,
-      gekozenDatum, OberPoesDb.afsprakenVoor(tenant.code), tenant.blokkades || []);
+      gekozenDatum, OberPoesDb.afsprakenVoor(tenant.code), tenant.blokkades || [],
+      tenant.capaciteit || 1);
     el('tijd-keuze').innerHTML = sloten.map((s) =>
       `<button type="button" class="knop knop-secundair${s.tijd === gekozenTijd ? ' gekozen' : ''}" data-tijd="${s.tijd}" ${s.vrij ? '' : 'disabled'}>${s.tijd}</button>`
     ).join('') || '<em>Geen tijden beschikbaar op deze dag.</em>';
@@ -128,6 +129,15 @@
       `Uw afspraak bij <strong>${tenant.naam}</strong> op <strong>${datumLabel(afspraak.datum)}</strong> `
       + `om <strong>${afspraak.tijd}</strong> is bevestigd.<br>`
       + `Locatie: ${tenant.straat} ${tenant.huisnummer}, ${tenant.plaats}.`;
+    el('bevestiging-mail').innerHTML =
+      `<strong>Demo — bevestigingsmail:</strong><br>
+      <strong>Aan:</strong> ${afspraak.email}<br>
+      <strong>Onderwerp:</strong> Afspraakbevestiging — ${tenant.naam}<br><br>
+      Beste ${afspraak.naam},<br><br>
+      Uw afspraak bij ${tenant.naam} op ${datumLabel(afspraak.datum)} om ${afspraak.tijd}
+      is bevestigd. 24 uur voor uw afspraak ontvangt u een herinnering per e-mail (gesimuleerd).<br>
+      Wilt u de afspraak wijzigen of annuleren? Gebruik dan
+      <a href="afspraak.html?id=${afspraak.id}">deze link</a>.`;
     el('stap-slot').classList.add('verborgen');
     el('stap-gegevens').classList.add('verborgen');
     el('stap-klaar').classList.remove('verborgen');

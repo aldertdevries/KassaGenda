@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Uw afspraak</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .tenant-kop { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 0 0; }
+    .tenant-kop img { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--rand); }
+    .tenant-kop h1 { margin: 0; font-size: 1.6rem; color: var(--paars-donker); }
+    .keuze-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .keuze-grid .knop-secundair.gekozen { background: var(--paars); color: #fff; }
+    .keuze-grid button:disabled { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+  </style>
+</head>
+<body>
+  <main class="container" id="afspraak-pagina">
+    <div class="kaart verborgen" id="niet-beschikbaar">
+      <h2>Deze pagina is niet beschikbaar</h2>
+      <p>Controleer of de link klopt.</p>
+    </div>
+    <div id="inhoud" class="verborgen">
+      <div class="tenant-kop">
+        <img id="t-logo" alt="Logo">
+        <div><h1 id="t-naam"></h1></div>
+      </div>
+      <div class="kaart" id="detail-kaart">
+        <h2>Uw afspraak</h2>
+        <p id="a-detail" role="status"></p>
+        <div id="acties">
+          <button class="knop" id="knop-verzetten">Verzetten</button>
+          <button class="knop knop-gevaar" id="knop-annuleren">Annuleren</button>
+        </div>
+        <div class="melding melding-info verborgen" id="gefactureerd-melding" role="status"></div>
+      </div>
+      <div class="kaart verborgen" id="verzet-kaart">
+        <h2>Kies een nieuw moment</h2>
+        <div class="veld"><label>Kies een dag</label><div class="keuze-grid" id="dag-keuze"></div></div>
+        <div class="veld verborgen" id="tijd-blok"><label>Kies een tijd</label><div class="keuze-grid" id="tijd-keuze"></div></div>
+        <span class="fout" id="fout-verzet" aria-live="polite"></span>
+      </div>
+      <div class="kaart verborgen" id="klaar-kaart">
+        <div class="melding melding-goed" id="klaar-melding" role="status"></div>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer">mogelijk gemaakt door OberPoes</footer>
+  <script src="js/validatie.js"></script>
+  <script src="js/agenda.js"></script>
+  <script src="js/facturatie.js"></script>
+  <script src="js/lijst.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/afspraak.js"></script>
+</body>
+</html>
