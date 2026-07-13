@@ -15,23 +15,46 @@
   }
   el('kop-naam').textContent = `🐾 ${tenant.naam} — beheer`;
 
-  // --- Login ---
+  // --- Login: wachtwoordloos via verificatie van e-mail of telefoon ---
   function toonApp() {
     el('login-kaart').classList.add('verborgen');
     el('beheer-app').classList.remove('verborgen');
     el('beheer-menu').classList.remove('verborgen');
     toonView('agenda');
   }
-  el('knop-login').addEventListener('click', () => {
-    if (el('wachtwoord').value !== huidigeTenant().beheerWachtwoord) {
-      el('fout-login').textContent = 'Onjuist wachtwoord.';
+
+  let verwachteCode = '';
+  el('masker-email').textContent = Maskeer.email(tenant.email);
+  el('masker-telefoon').textContent = Maskeer.telefoon(tenant.telefoon);
+
+  function stuurCode(kanaal) {
+    verwachteCode = String(Math.floor(100000 + Math.random() * 900000));
+    el('demo-login-code').innerHTML =
+      `<strong>Demo:</strong> in een echte omgeving ontvangt u deze code per ${kanaal}.<br>`
+      + `Code: <span class="demo-code">${verwachteCode}</span>`;
+    el('login-code').value = '';
+    el('fout-login').textContent = '';
+    el('methode-keuze').classList.add('verborgen');
+    el('code-stap').classList.remove('verborgen');
+  }
+  el('knop-email').addEventListener('click', () => stuurCode('e-mail'));
+  el('knop-sms').addEventListener('click', () => stuurCode('sms'));
+  el('andere-methode').addEventListener('click', (e) => {
+    e.preventDefault();
+    verwachteCode = '';
+    el('code-stap').classList.add('verborgen');
+    el('methode-keuze').classList.remove('verborgen');
+  });
+  el('knop-verifieer').addEventListener('click', () => {
+    if (!verwachteCode || el('login-code').value.trim() !== verwachteCode) {
+      el('fout-login').textContent = 'Deze code klopt niet.';
       return;
     }
     sessionStorage.setItem(SESSIE_SLEUTEL, 'ja');
     toonApp();
   });
-  el('wachtwoord').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') el('knop-login').click();
+  el('login-code').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') el('knop-verifieer').click();
   });
   el('menu-uitloggen').addEventListener('click', (e) => {
     e.preventDefault();

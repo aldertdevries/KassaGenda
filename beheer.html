@@ -24,14 +24,25 @@
       <p>Controleer of de link klopt.</p>
     </div>
 
-    <div class="kaart verborgen" id="login-kaart" style="max-width: 420px; margin: 3rem auto;">
+    <div class="kaart verborgen" id="login-kaart" style="max-width: 480px; margin: 3rem auto;">
       <h2>Beheer — inloggen</h2>
-      <div class="veld">
-        <label for="wachtwoord">Wachtwoord</label>
-        <input id="wachtwoord" type="password" autocomplete="current-password">
+      <div id="methode-keuze">
+        <p>Bevestig dat u het bent. Waar mogen wij de verificatiecode heen sturen?</p>
+        <p><button class="knop" id="knop-email">Stuur code naar e-mail (<span id="masker-email"></span>)</button></p>
+        <p><button class="knop" id="knop-sms">Stuur code naar sms (<span id="masker-telefoon"></span>)</button></p>
       </div>
-      <span class="fout" id="fout-login"></span>
-      <button class="knop" id="knop-login">Inloggen</button>
+      <div id="code-stap" class="verborgen">
+        <div class="melding melding-info" id="demo-login-code"></div>
+        <div class="veld">
+          <label for="login-code">Verificatiecode</label>
+          <input id="login-code" type="text" maxlength="6" autocomplete="off">
+          <span class="fout" id="fout-login"></span>
+        </div>
+        <p>
+          <button class="knop" id="knop-verifieer">Bevestigen</button>
+          <a href="#" id="andere-methode">Andere methode kiezen</a>
+        </p>
+      </div>
     </div>
 
     <div id="beheer-app" class="verborgen">
