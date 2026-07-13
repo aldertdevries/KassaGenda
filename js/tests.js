@@ -370,6 +370,17 @@ test('totalen: negatieve bedragen (creditfactuur)', () => {
   assert(t.inclCent === -12100 && t.btwHoogCent === -2100 && t.exclCent === -10000);
 });
 
+// --- Verbeterronde: lijst ---
+test('filterEnPagineer: zoekt, pagineert en klemt', () => {
+  const items = Array.from({ length: 25 }, (_, i) =>
+    ({ naam: 'Item ' + (i + 1), plaats: i < 5 ? 'Amsterdam' : 'Utrecht' }));
+  const p1 = Lijst.filterEnPagineer(items, '', ['naam'], 1);
+  assert(p1.items.length === 10 && p1.paginas === 3 && p1.totaal === 25);
+  assert(Lijst.filterEnPagineer(items, '', ['naam'], 3).items.length === 5);
+  assert(Lijst.filterEnPagineer(items, 'amster', ['naam', 'plaats'], 1).totaal === 5);
+  assert(Lijst.filterEnPagineer(items, '', ['naam'], 99).pagina === 3, 'pagina geklemd');
+});
+
 OberPoesDb.wisAlles();
 
 const geslaagd = resultaten.filter((r) => r.ok).length;
