@@ -11,7 +11,7 @@ dependencies: direct hostbaar op GitHub Pages.
 | `over.html` | Over OberPoes |
 | `admin.html` | Afgesloten beheer: aanvragen goedkeuren/afkeuren, tenants beheren |
 | `tenant.html?code=X` | Openbare boekingspagina van één actieve tenant (deelbaar / iframe) |
-| `beheer.html?code=X` | Beheer van één tenant: agenda, openingstijden, profiel (wachtwoord via hoofdadmin) |
+| `beheer.html?code=X` | Beheer van één tenant: agenda, openingstijden, profiel (login via e-mail-/sms-verificatiecode) |
 | `tests.html` | Browser-tests voor database-, agenda- en validatielogica |
 
 ## Demo-inloggegevens
