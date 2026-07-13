@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Afspraak maken</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .tenant-kop { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 0 0; }
+    .tenant-kop img { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--rand); }
+    .tenant-kop h1 { margin: 0; font-size: 1.6rem; color: var(--paars-donker); }
+    .tenant-kop p { margin: 0; color: #666; }
+    .keuze-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .keuze-grid .knop-secundair.gekozen { background: var(--paars); color: #fff; }
+    .keuze-grid button:disabled { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="kaart verborgen" id="niet-beschikbaar">
+      <h2>Deze pagina is niet beschikbaar</h2>
+      <p>Controleer of de link klopt of neem contact op met de organisatie.</p>
+    </div>
+
+    <div id="boeking" class="verborgen">
+      <div class="tenant-kop">
+        <img id="t-logo" alt="Logo">
+        <div>
+          <h1 id="t-naam"></h1>
+          <p id="t-adres"></p>
+        </div>
+      </div>
+
+      <div class="kaart" id="stap-slot">
+        <h2>Maak een afspraak</h2>
+        <div class="veld">
+          <label>Kies een dag</label>
+          <div class="keuze-grid" id="dag-keuze"></div>
+        </div>
+        <div class="veld verborgen" id="tijd-blok">
+          <label>Kies een tijd</label>
+          <div class="keuze-grid" id="tijd-keuze"></div>
+        </div>
+      </div>
+
+      <div class="kaart verborgen" id="stap-gegevens">
+        <h2>Uw gegevens</h2>
+        <p class="melding melding-info" id="gekozen-slot"></p>
+        <form id="afspraakformulier" novalidate>
+          <div class="veld">
+            <label for="naam">Naam</label>
+            <input id="naam" type="text" required>
+            <span class="fout" id="fout-naam"></span>
+          </div>
+          <div class="veld">
+            <label for="email">E-mailadres</label>
+            <input id="email" type="email" required>
+            <span class="fout" id="fout-email"></span>
+          </div>
+          <div class="velden-rij">
+            <div class="veld">
+              <label for="postcode">Postcode</label>
+              <input id="postcode" type="text" placeholder="1234 AB" required>
+              <span class="fout" id="fout-postcode"></span>
+            </div>
+            <div class="veld">
+              <label for="huisnummer">Huisnummer</label>
+              <input id="huisnummer" type="text" required>
+              <span class="fout" id="fout-huisnummer"></span>
+            </div>
+          </div>
+          <div class="velden-rij">
+            <div class="veld">
+              <label for="straat">Straat</label>
+              <input id="straat" type="text" readonly placeholder="wordt automatisch bepaald">
+            </div>
+            <div class="veld">
+              <label for="plaats">Plaats</label>
+              <input id="plaats" type="text" readonly placeholder="wordt automatisch bepaald">
+            </div>
+          </div>
+          <span class="fout" id="fout-adres"></span>
+          <div class="veld">
+            <label for="extra">Extra (optioneel)</label>
+            <input id="extra" type="text">
+          </div>
+          <div class="veld">
+            <label for="telefoon">Telefoonnummer</label>
+            <input id="telefoon" type="tel" placeholder="0612345678" required>
+            <span class="fout" id="fout-telefoon"></span>
+          </div>
+          <span class="fout" id="fout-boeking"></span>
+          <button type="submit" class="knop">Afspraak bevestigen</button>
+        </form>
+      </div>
+
+      <div class="kaart verborgen" id="stap-klaar">
+        <h2>Afspraak bevestigd 🎉</h2>
+        <div class="melding melding-goed" id="bevestiging"></div>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer">mogelijk gemaakt door OberPoes</footer>
+  <script src="js/validatie.js"></script>
+  <script src="js/adres.js"></script>
+  <script src="js/agenda.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/tenant.js"></script>
+</body>
+</html>
