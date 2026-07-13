@@ -154,6 +154,15 @@ test('demo-data: actieve tenant heeft wachtwoord en afspraken', () => {
   assert(OberPoesDb.afsprakenVoor(actief.code).length === 2);
 });
 
+// --- Maskering ---
+test('maskeer: e-mail en telefoon', () => {
+  assert(Maskeer.email('contact@viervoeters.nl') === 'c····@viervoeters.nl',
+    'kreeg: ' + Maskeer.email('contact@viervoeters.nl'));
+  assert(Maskeer.telefoon('0307654321') === '03······21',
+    'kreeg: ' + Maskeer.telefoon('0307654321'));
+  assert(Maskeer.telefoon('06-1234 5678') === '06······78');
+});
+
 OberPoesDb.wisAlles();
 
 const geslaagd = resultaten.filter((r) => r.ok).length;

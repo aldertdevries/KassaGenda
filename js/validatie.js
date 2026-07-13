@@ -7,3 +7,15 @@ const Validatie = {
   kvk: (v) => /^[0-9]{8}$/.test(String(v).trim()),
   telefoon: (v) => /^(\+31|0031|0)[1-9][0-9]{8}$/.test(String(v).replace(/[\s-]/g, '')),
 };
+
+// Maskering voor het tonen van contactgegevens zonder ze prijs te geven.
+const Maskeer = {
+  email: (v) => {
+    const [naam, domein] = String(v).trim().split('@');
+    return (naam[0] || '') + '····@' + (domein || '');
+  },
+  telefoon: (v) => {
+    const cijfers = String(v).replace(/[\s-]/g, '');
+    return cijfers.slice(0, 2) + '······' + cijfers.slice(-2);
+  },
+};
