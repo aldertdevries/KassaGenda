@@ -47,43 +47,15 @@
     }
   });
 
-  // --- Adres via PDOK Locatieserver ---
-  async function zoekAdres(postcode, huisnummer) {
-    const pc = postcode.replace(/\s/g, '').toUpperCase();
-    const nr = parseInt(huisnummer, 10);
-    const url = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/free'
-      + `?q=postcode:${pc} and huisnummer:${nr}&fq=type:adres&rows=1`;
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error('PDOK niet bereikbaar');
-    const data = await resp.json();
-    const doc = data.response.docs[0];
-    if (!doc) return null;
-    return { straat: doc.straatnaam, plaats: doc.woonplaatsnaam };
-  }
-
-  async function werkAdresBij() {
-    const postcode = el('postcode').value;
-    const huisnummer = el('huisnummer').value;
-    adres = null;
-    el('straat').value = '';
-    el('plaats').value = '';
-    zetFout('adres', '');
-    if (!Validatie.postcode(postcode) || !Validatie.huisnummer(huisnummer)) return;
-    try {
-      const gevonden = await zoekAdres(postcode, huisnummer);
-      if (!gevonden) {
-        zetFout('adres', 'Geen adres gevonden bij deze postcode en dit huisnummer.');
-        return;
-      }
-      adres = gevonden;
-      el('straat').value = adres.straat;
-      el('plaats').value = adres.plaats;
-    } catch (e) {
-      zetFout('adres', 'Adresservice is niet bereikbaar. Probeer het later opnieuw.');
-    }
-  }
-  el('postcode').addEventListener('blur', werkAdresBij);
-  el('huisnummer').addEventListener('blur', werkAdresBij);
+  // --- Adres via PDOK Locatieserver (gedeelde helper) ---
+  Adres.bind({
+    postcodeEl: el('postcode'),
+    huisnummerEl: el('huisnummer'),
+    straatEl: el('straat'),
+    plaatsEl: el('plaats'),
+    foutEl: el('fout-adres'),
+    bijAdres: (a) => { adres = a; },
+  });
 
   // --- Live veldvalidatie ---
   const veldRegels = {
