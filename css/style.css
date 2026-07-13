@@ -1,0 +1,92 @@
+:root {
+  --paars: #5b4b8a;
+  --paars-donker: #453a69;
+  --accent: #e8a33d;
+  --bg: #f7f6fb;
+  --tekst: #2b2b33;
+  --rand: #ddd9ea;
+  --rood: #c0392b;
+  --groen: #1e8e4e;
+  --blauw: #2471a3;
+  --grijs: #7f8c8d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--tekst);
+  line-height: 1.6;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 0 1.25rem; }
+
+/* Header en menu */
+.site-header { background: var(--paars); color: #fff; }
+.header-inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.25rem; }
+.logo { color: #fff; text-decoration: none; font-size: 1.35rem; font-weight: 700; }
+.site-header nav a {
+  color: #e9e5f7; text-decoration: none; margin-left: 1.25rem; padding-bottom: 3px;
+}
+.site-header nav a.actief, .site-header nav a:hover { color: #fff; border-bottom: 2px solid var(--accent); }
+
+/* Hero */
+.hero { text-align: center; padding: 3rem 0 2rem; }
+.hero h1 { font-size: 2.4rem; margin: 0 0 0.5rem; color: var(--paars-donker); }
+.hero p { font-size: 1.15rem; color: #55506b; max-width: 34rem; margin: 0 auto; }
+
+/* Kaarten en formulieren */
+.kaart { background: #fff; border: 1px solid var(--rand); border-radius: 10px; padding: 1.75rem; margin: 1.5rem 0; }
+.kaart h2 { margin-top: 0; color: var(--paars-donker); }
+.veld { margin-bottom: 1rem; }
+.veld label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+.veld input, .veld select {
+  width: 100%; padding: 0.55rem 0.7rem; border: 1px solid var(--rand);
+  border-radius: 6px; font-size: 1rem; background: #fff;
+}
+.veld input[readonly] { background: #f0eef8; color: #666; }
+.veld input:focus, .veld select:focus { outline: 2px solid var(--paars); border-color: var(--paars); }
+.veld .fout { color: var(--rood); font-size: 0.85rem; display: block; min-height: 1.1rem; }
+.fout { color: var(--rood); font-size: 0.85rem; display: block; }
+.velden-rij { display: flex; gap: 1rem; }
+.velden-rij .veld { flex: 1; }
+
+/* Knoppen */
+.knop {
+  background: var(--paars); color: #fff; border: none; border-radius: 6px;
+  padding: 0.65rem 1.4rem; font-size: 1rem; font-weight: 600; cursor: pointer;
+  text-decoration: none; display: inline-block;
+}
+.knop:hover { background: var(--paars-donker); }
+.knop-secundair { background: #fff; color: var(--paars); border: 1px solid var(--paars); }
+.knop-secundair:hover { background: #f0eef8; }
+.knop-gevaar { background: var(--rood); }
+.knop-gevaar:hover { background: #96281b; }
+.knop-goed { background: var(--groen); }
+.knop-goed:hover { background: #166e3c; }
+.knop-klein { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+
+/* Statusbadges */
+.badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 99px; font-size: 0.8rem; font-weight: 600; color: #fff; }
+.badge-aangevraagd { background: var(--blauw); }
+.badge-afgewezen { background: var(--rood); }
+.badge-actief { background: var(--groen); }
+.badge-inactief { background: var(--grijs); }
+
+/* Tabellen */
+.tabel { width: 100%; border-collapse: collapse; }
+.tabel th, .tabel td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--rand); vertical-align: middle; }
+.tabel th { background: #f0eef8; color: var(--paars-donker); }
+.tabel img { width: 40px; height: 40px; border-radius: 6px; border: 1px solid var(--rand); }
+.tabel tr.klikbaar { cursor: pointer; }
+.tabel tr.klikbaar:hover { background: #faf9fd; }
+
+/* Hulpklassen */
+.verborgen { display: none !important; }
+.melding { padding: 0.8rem 1rem; border-radius: 6px; margin: 1rem 0; }
+.melding-fout { background: #fdecea; color: var(--rood); border: 1px solid #f5c6c1; }
+.melding-info { background: #eaf2fd; color: var(--blauw); border: 1px solid #c1d8f5; }
+.melding-goed { background: #e9f7ef; color: var(--groen); border: 1px solid #bfe8d0; }
+.demo-code { font-family: monospace; font-size: 1.3rem; background: #f0eef8; padding: 0.2rem 0.6rem; border-radius: 6px; letter-spacing: 2px; }
+.tabel .demo-code { font-size: 0.95rem; }
+.logo-preview { width: 150px; height: 150px; border: 1px dashed var(--rand); border-radius: 8px; background: #fff; object-fit: contain; }
+.site-footer { text-align: center; color: #8a86a0; padding: 2rem 0; font-size: 0.9rem; }
