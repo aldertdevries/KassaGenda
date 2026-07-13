@@ -182,6 +182,61 @@ test('euro-notatie', () => {
   assert(Facturatie.euro(1234) === '€ 12,34', 'kreeg: ' + Facturatie.euro(1234));
 });
 
+// --- Facturatie: database ---
+test('maakFactuur: nummering per tenant en koppeling afspraak', () => {
+  OberPoesDb.wisAlles();
+  const t1 = OberPoesDb.voegToe({ naam: 'Facturant BV' });
+  const t2 = OberPoesDb.voegToe({ naam: 'Ander BV' });
+  const a1 = OberPoesDb.maakAfspraak({ tenantCode: t1.code, datum: '2026-07-14', tijd: '10:00', naam: 'Jan', email: 'jan@x.nl' });
+  const a2 = OberPoesDb.maakAfspraak({ tenantCode: t1.code, datum: '2026-07-14', tijd: '11:00', naam: 'Piet', email: 'piet@x.nl' });
+  const a3 = OberPoesDb.maakAfspraak({ tenantCode: t2.code, datum: '2026-07-14', tijd: '10:00', naam: 'Kees', email: 'kees@x.nl' });
+  const regels = [{ naam: 'Consult', btw: 'hoog', bedragCent: 5000 }];
+  const f1 = OberPoesDb.maakFactuur({ tenantCode: t1.code, afspraakId: a1.id, regels });
+  const f2 = OberPoesDb.maakFactuur({ tenantCode: t1.code, afspraakId: a2.id, regels });
+  const f3 = OberPoesDb.maakFactuur({ tenantCode: t2.code, afspraakId: a3.id, regels });
+  const jaar = f1.gemaaktOp.slice(0, 4);
+  assert(f1.nummer === jaar + '-0001' && f2.nummer === jaar + '-0002', f1.nummer + '/' + f2.nummer);
+  assert(f3.nummer === jaar + '-0001', 'nummering per tenant');
+  assert(f1.klantNaam === 'Jan' && f1.klantEmail === 'jan@x.nl' && f1.status === 'Open');
+  assert(OberPoesDb.afsprakenVoor(t1.code)[0].factuurId === f1.id);
+});
+test('maakFactuur: dubbel factureren geeft null', () => {
+  const t1 = OberPoesDb.alleTenants()[0];
+  const a = OberPoesDb.afsprakenVoor(t1.code)[0];
+  assert(OberPoesDb.maakFactuur({ tenantCode: t1.code, afspraakId: a.id, regels: [] }) === null);
+});
+test('annuleerAfspraak: gefactureerde afspraak weigert', () => {
+  const t1 = OberPoesDb.alleTenants()[0];
+  const a = OberPoesDb.afsprakenVoor(t1.code)[0];
+  assert(OberPoesDb.annuleerAfspraak(a.id) === false);
+  assert(OberPoesDb.afsprakenVoor(t1.code).some((x) => x.id === a.id), 'afspraak blijft bestaan');
+});
+test('facturenVoor: alleen eigen tenant; status wijzigbaar', () => {
+  const [t1, t2] = OberPoesDb.alleTenants();
+  assert(OberPoesDb.facturenVoor(t1.code.toLowerCase()).length === 2);
+  assert(OberPoesDb.facturenVoor(t2.code).length === 1);
+  const f = OberPoesDb.facturenVoor(t2.code)[0];
+  assert(OberPoesDb.zetFactuurStatus(f.id, 'Betaald').status === 'Betaald');
+  assert(OberPoesDb.vindFactuur(f.id).status === 'Betaald');
+});
+test('factuurregels en mollie-id instelbaar', () => {
+  const t = OberPoesDb.alleTenants()[0];
+  OberPoesDb.zetFactuurRegels(t.code, [{ id: 'R1', naam: 'Consult', btw: 'hoog', bedragCent: 4500 }]);
+  OberPoesDb.zetMollieApiId(t.code, 'test_123');
+  const na = OberPoesDb.vindTenant(t.code);
+  assert(na.factuurRegels.length === 1 && na.mollieApiId === 'test_123');
+});
+test('migratie: database zonder facturen-veld werkt', () => {
+  localStorage.setItem('oberpoes_db', JSON.stringify({ tenants: [], afspraken: [] }));
+  assert(Array.isArray(OberPoesDb.facturenVoor('X')));
+});
+test('demo-data: actieve tenant heeft factuurregels en mollie-id', () => {
+  OberPoesDb.wisAlles();
+  OberPoesDb.laadDemoData();
+  const actief = OberPoesDb.alleTenants().find((t) => t.status === 'Actief');
+  assert(actief.factuurRegels.length === 2 && actief.mollieApiId === 'demo_mollie_123');
+});
+
 OberPoesDb.wisAlles();
 
 const geslaagd = resultaten.filter((r) => r.ok).length;

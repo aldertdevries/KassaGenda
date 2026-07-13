@@ -9,10 +9,11 @@ const OberPoesDb = (() => {
       const data = JSON.parse(localStorage.getItem(DB_SLEUTEL));
       if (data && Array.isArray(data.tenants)) {
         if (!Array.isArray(data.afspraken)) data.afspraken = [];
+        if (!Array.isArray(data.facturen)) data.facturen = [];
         return data;
       }
     } catch (e) { /* corrupte data → verse database */ }
-    return { tenants: [], afspraken: [] };
+    return { tenants: [], afspraken: [], facturen: [] };
   }
   function schrijf(db) {
     localStorage.setItem(DB_SLEUTEL, JSON.stringify(db));
@@ -63,6 +64,8 @@ const OberPoesDb = (() => {
         status: 'Actief',
         openingstijden: bestaand.openingstijden || Agenda.standaardOpeningstijden(),
         slotDuur: bestaand.slotDuur || 30,
+        factuurRegels: bestaand.factuurRegels || [],
+        mollieApiId: bestaand.mollieApiId || '',
       });
     },
     alleAfspraken() { return lees().afspraken; },
@@ -83,13 +86,52 @@ const OberPoesDb = (() => {
     },
     annuleerAfspraak(id) {
       const db = lees();
-      const voor = db.afspraken.length;
+      const afspraak = db.afspraken.find((a) => a.id === id);
+      if (!afspraak || afspraak.factuurId) return false;
       db.afspraken = db.afspraken.filter((a) => a.id !== id);
       schrijf(db);
-      return db.afspraken.length < voor;
+      return true;
     },
     zetOpeningstijden(code, openingstijden, slotDuur) {
       return this.wijzig(code, { openingstijden, slotDuur });
+    },
+    zetFactuurRegels(code, regels) { return this.wijzig(code, { factuurRegels: regels }); },
+    zetMollieApiId(code, id) { return this.wijzig(code, { mollieApiId: id }); },
+    maakFactuur({ tenantCode, afspraakId, regels }) {
+      const db = lees();
+      const afspraak = db.afspraken.find((a) => a.id === afspraakId);
+      if (!afspraak || afspraak.factuurId) return null;
+      const norm = String(tenantCode).toUpperCase();
+      const gemaaktOp = new Date().toISOString();
+      const volgnummer = db.facturen.filter((f) => f.tenantCode.toUpperCase() === norm).length + 1;
+      const factuur = {
+        id: this.genereerCode(),
+        nummer: `${gemaaktOp.slice(0, 4)}-${String(volgnummer).padStart(4, '0')}`,
+        tenantCode: afspraak.tenantCode,
+        afspraakId,
+        klantNaam: afspraak.naam,
+        klantEmail: afspraak.email,
+        regels,
+        status: 'Open',
+        gemaaktOp,
+      };
+      db.facturen.push(factuur);
+      afspraak.factuurId = factuur.id;
+      schrijf(db);
+      return factuur;
+    },
+    facturenVoor(tenantCode) {
+      const norm = String(tenantCode).toUpperCase();
+      return lees().facturen.filter((f) => f.tenantCode.toUpperCase() === norm);
+    },
+    vindFactuur(id) { return lees().facturen.find((f) => f.id === id) || null; },
+    zetFactuurStatus(id, status) {
+      const db = lees();
+      const factuur = db.facturen.find((f) => f.id === id);
+      if (!factuur) return null;
+      factuur.status = status;
+      schrijf(db);
+      return factuur;
     },
     wisAlles() { localStorage.removeItem(DB_SLEUTEL); },
     laadDemoData() {
@@ -119,6 +161,11 @@ const OberPoesDb = (() => {
       // Variatie in status zodat filters iets tonen; actieve tenant met agenda
       const tenants = this.alleTenants();
       this.activeerTenant(tenants[1].code);
+      this.zetFactuurRegels(tenants[1].code, [
+        { id: this.genereerCode(), naam: 'Consult 30 minuten', btw: 'hoog', bedragCent: 4500 },
+        { id: this.genereerCode(), naam: 'Verzorgingspakket', btw: 'laag', bedragCent: 1250 },
+      ]);
+      this.zetMollieApiId(tenants[1].code, 'demo_mollie_123');
       this.zetStatus(tenants[2].code, 'Inactief');
       const actief = this.vindTenant(tenants[1].code);
       const vandaag = new Date().toISOString().slice(0, 10);
