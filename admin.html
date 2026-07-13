@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OberPoes — beheer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="admin.html">🐾 OberPoes <small>beheer</small></a>
+      <nav id="admin-menu" class="verborgen">
+        <a href="#" id="menu-aanvragen" class="actief">Aanvragen</a>
+        <a href="#" id="menu-tenants">Tenants</a>
+        <a href="#" id="menu-uitloggen">Uitloggen</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+
+    <!-- Login -->
+    <div class="kaart" id="login-kaart" style="max-width: 420px; margin: 3rem auto;">
+      <h2>Inloggen</h2>
+      <div class="veld">
+        <label for="gebruikersnaam">Gebruikersnaam</label>
+        <input id="gebruikersnaam" type="text" autocomplete="username">
+      </div>
+      <div class="veld">
+        <label for="wachtwoord">Wachtwoord</label>
+        <input id="wachtwoord" type="password" autocomplete="current-password">
+      </div>
+      <span class="fout" id="fout-login"></span>
+      <button class="knop" id="knop-login">Inloggen</button>
+      <p class="melding melding-info">Demo: gebruikersnaam <code>oberpoes</code>, wachtwoord <code>miauw2026</code>.</p>
+    </div>
+
+    <!-- Applicatie -->
+    <div id="admin-app" class="verborgen">
+      <div id="view-aanvragen"></div>
+      <div id="view-tenants" class="verborgen"></div>
+    </div>
+
+  </main>
+  <footer class="site-footer">© 2026 OberPoes — prototype</footer>
+  <script src="js/validatie.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
