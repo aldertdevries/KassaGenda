@@ -14,8 +14,8 @@
   el('b-omschrijving').textContent = `Factuur ${factuur.nummer}`;
   el('b-bedrag').textContent = Facturatie.euro(Facturatie.totalen(factuur.regels).inclCent);
   el('b-mollie').textContent = tenant.mollieApiId
-    ? `Verwerkt via Mollie (${tenant.mollieApiId}) — demo, er wordt niets afgeschreven.`
-    : 'Demo — er wordt niets afgeschreven.';
+    ? `Betaling via Mollie (${tenant.mollieApiId}). Dit is een demo: er gaat geen echt geld van uw rekening.`
+    : 'Dit is een demo: er gaat geen echt geld van uw rekening.';
   el('checkout').classList.remove('verborgen');
 
   function toonBetaald() {
@@ -28,7 +28,7 @@
     el('b-open').classList.add('verborgen');
     el('b-betaald').classList.remove('verborgen');
     el('b-betaald').querySelector('.melding').textContent =
-      `Deze factuur heeft status ${factuur.status} en kan niet betaald worden.`;
+      `U kunt deze factuur niet betalen. De status is: ${factuur.status}.`;
   }
 
   el('knop-betaal').addEventListener('click', () => {

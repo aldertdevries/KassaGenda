@@ -29,7 +29,8 @@
   if (afspraak.factuurId) {
     el('acties').classList.add('verborgen');
     el('gefactureerd-melding').textContent =
-      `Deze afspraak is al gefactureerd en kan online niet meer gewijzigd worden. `
+      `U heeft al een factuur voor deze afspraak gekregen. `
+      + `Daarom kunt u de afspraak hier niet meer wijzigen. `
       + `Neem contact op met ${tenant.naam} via ${tenant.email}.`;
     el('gefactureerd-melding').classList.remove('verborgen');
     return;
@@ -72,12 +73,12 @@
       tenant.blokkades || [], tenant.capaciteit || 1);
     el('tijd-keuze').innerHTML = sloten.map((s) =>
       `<button type="button" class="knop knop-secundair" data-tijd="${s.tijd}" ${s.vrij ? '' : 'disabled'}>${s.tijd}</button>`
-    ).join('') || '<em>Geen tijden beschikbaar op deze dag.</em>';
+    ).join('') || '<em>Op deze dag zijn geen tijden vrij.</em>';
     el('tijd-keuze').querySelectorAll('button:not([disabled])').forEach((k) => {
       k.addEventListener('click', () => {
         const nieuw = OberPoesDb.verzetAfspraak(afspraak.id, gekozenDatum, k.dataset.tijd);
         if (!nieuw) {
-          el('fout-verzet').textContent = 'Dit tijdstip is zojuist bezet geraakt. Kies een andere tijd.';
+          el('fout-verzet').textContent = 'Deze tijd is net bezet. Kies een andere tijd.';
           renderTijden();
           return;
         }

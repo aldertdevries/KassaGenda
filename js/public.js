@@ -43,7 +43,7 @@
       preview.src = logoDataUrl;
       preview.classList.remove('verborgen');
     } catch (e) {
-      zetFout('logo', 'Dit bestand kan niet als afbeelding gelezen worden.');
+      zetFout('logo', 'Dit bestand is geen goede afbeelding. Kies een ander bestand.');
     }
   });
 
@@ -59,7 +59,7 @@
 
   // --- Live veldvalidatie ---
   const veldRegels = {
-    naam: [Validatie.naam, 'Vul de naam van uw organisatie in (minimaal 2 tekens).'],
+    naam: [Validatie.naam, 'Vul de naam van uw bedrijf in (minimaal 2 tekens).'],
     email: [Validatie.email, 'Vul een geldig e-mailadres in.'],
     postcode: [Validatie.postcode, 'Vul een geldige Nederlandse postcode in (1234 AB).'],
     huisnummer: [Validatie.huisnummer, 'Vul een geldig huisnummer in.'],
@@ -82,7 +82,7 @@
     });
     if (!logoDataUrl) { zetFout('logo', 'Upload een logo.'); ok = false; }
     if (!adres) {
-      zetFout('adres', 'Het adres kon nog niet bepaald worden. Controleer postcode en huisnummer.');
+      zetFout('adres', 'Wij hebben uw adres nog niet gevonden. Controleer uw postcode en huisnummer.');
       ok = false;
     }
     return ok;
@@ -119,7 +119,7 @@
     emailCode = maakCode();
     telefoonCode = maakCode();
     el('demo-codes').innerHTML =
-      '<strong>Demo:</strong> in een echte omgeving ontvangt u deze codes per e-mail en sms.<br>'
+      '<strong>Demo:</strong> normaal krijgt u deze codes per e-mail en sms.<br>'
       + `E-mailcode: <span class="demo-code">${emailCode}</span> &nbsp; `
       + `Sms-code: <span class="demo-code">${telefoonCode}</span>`;
     el('stap-formulier').classList.add('verborgen');

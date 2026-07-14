@@ -51,7 +51,7 @@
       tenant.capaciteit || 1);
     el('tijd-keuze').innerHTML = sloten.map((s) =>
       `<button type="button" class="knop knop-secundair${s.tijd === gekozenTijd ? ' gekozen' : ''}" data-tijd="${s.tijd}" ${s.vrij ? '' : 'disabled'}>${s.tijd}</button>`
-    ).join('') || '<em>Geen tijden beschikbaar op deze dag.</em>';
+    ).join('') || '<em>Op deze dag zijn geen tijden vrij.</em>';
     el('tijd-keuze').querySelectorAll('button:not([disabled])').forEach((k) => {
       k.addEventListener('click', () => {
         gekozenTijd = k.dataset.tijd;
@@ -121,14 +121,14 @@
       telefoon: el('telefoon').value.trim(),
     });
     if (!afspraak) {
-      zetFout('boeking', 'Dit tijdstip is zojuist bezet geraakt. Kies een andere tijd.');
+      zetFout('boeking', 'Deze tijd is net bezet. Kies een andere tijd.');
       renderTijden();
       return;
     }
     el('bevestiging').innerHTML =
-      `Uw afspraak bij <strong>${tenant.naam}</strong> op <strong>${datumLabel(afspraak.datum)}</strong> `
-      + `om <strong>${afspraak.tijd}</strong> is bevestigd.<br>`
-      + `Locatie: ${tenant.straat} ${tenant.huisnummer}, ${tenant.plaats}.`;
+      `Uw afspraak staat vast: <strong>${datumLabel(afspraak.datum)}</strong> om `
+      + `<strong>${afspraak.tijd}</strong> bij <strong>${tenant.naam}</strong>.<br>`
+      + `Adres: ${tenant.straat} ${tenant.huisnummer}, ${tenant.plaats}.`;
     const mailTekst = Berichten.render(Berichten.voor(tenant, 'boeking'), {
       naam: afspraak.naam,
       tenant: tenant.naam,

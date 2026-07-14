@@ -23,14 +23,14 @@ const Adres = (() => {
       try {
         const adres = await zoek(postcodeEl.value, huisnummerEl.value);
         if (!adres) {
-          foutEl.textContent = 'Geen adres gevonden bij deze postcode en dit huisnummer.';
+          foutEl.textContent = 'Wij vinden geen adres bij deze postcode en dit huisnummer.';
           return;
         }
         straatEl.value = adres.straat;
         plaatsEl.value = adres.plaats;
         bijAdres(adres);
       } catch (e) {
-        foutEl.textContent = 'Adresservice is niet bereikbaar. Probeer het later opnieuw.';
+        foutEl.textContent = 'Het opzoeken van uw adres lukt nu niet. Probeer het later nog eens.';
       }
     }
     postcodeEl.addEventListener('blur', werkBij);

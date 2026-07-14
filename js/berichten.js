@@ -1,13 +1,13 @@
 // Sjablonen voor klantberichten; per tenant aanpasbaar in het beheer.
 const Berichten = {
   STANDAARD: {
-    boeking: 'Beste {naam},\n\nUw afspraak bij {tenant} op {datum} om {tijd} is bevestigd. 24 uur voor uw afspraak ontvangt u een herinnering per e-mail.\n\nMet vriendelijke groet,\n{tenant}',
-    verzet: 'Beste {naam},\n\nUw afspraak bij {tenant} is verzet naar {datum} om {tijd}.\n\nMet vriendelijke groet,\n{tenant}',
-    factuur: 'Beste {naam},\n\nHierbij ontvangt u factuur {nummer} ({bedrag}) voor uw afspraak. U kunt eenvoudig online betalen via de betaallink in dit bericht.\n\nMet vriendelijke groet,\n{tenant}',
-    betaling: 'Beste {naam},\n\nWij hebben uw betaling van {bedrag} voor factuur {nummer} in goede orde ontvangen. Hartelijk dank!\n\nMet vriendelijke groet,\n{tenant}',
+    boeking: 'Beste {naam},\n\nUw afspraak staat vast. U komt op {datum} om {tijd} bij {tenant}. Een dag van tevoren sturen wij u een herinnering.\n\nMet vriendelijke groet,\n{tenant}',
+    verzet: 'Beste {naam},\n\nUw afspraak is verzet. U komt nu op {datum} om {tijd} bij {tenant}.\n\nMet vriendelijke groet,\n{tenant}',
+    factuur: 'Beste {naam},\n\nHierbij sturen wij u factuur {nummer}. Het bedrag is {bedrag}. U kunt makkelijk online betalen met de betaallink in dit bericht.\n\nMet vriendelijke groet,\n{tenant}',
+    betaling: 'Beste {naam},\n\nWij hebben uw betaling van {bedrag} ontvangen voor factuur {nummer}. Bedankt!\n\nMet vriendelijke groet,\n{tenant}',
   },
   STANDAARD_FACTUURVOETTEKST:
-    'Gelieve het bedrag binnen 14 dagen over te maken onder vermelding van het factuurnummer.',
+    'Betaal dit bedrag graag binnen 14 dagen. Vermeld daarbij het factuurnummer.',
   render(sjabloon, data) {
     return String(sjabloon).replace(/\{(\w+)\}/g,
       (heel, sleutel) => (data[sleutel] !== undefined ? data[sleutel] : heel));

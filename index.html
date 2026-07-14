@@ -26,20 +26,20 @@
   <main class="container">
     <section class="hero">
       <h1>KassaGenda</h1>
-      <p>Het platform voor uw onderneming. Schrijf uw organisatie vandaag nog in en ga direct van start.</p>
+      <p>Eén online programma voor uw agenda en uw facturen. Meld uw bedrijf vandaag nog aan.</p>
     </section>
     <section id="inschrijf-sectie">
       <!-- Stap 1: formulier -->
       <div class="kaart" id="stap-formulier">
-        <h2>Schrijf uw organisatie in</h2>
+        <h2>Meld uw bedrijf aan</h2>
         <form id="inschrijfformulier" novalidate>
           <div class="veld">
-            <label for="naam">Naam organisatie</label>
+            <label for="naam">Naam van uw bedrijf</label>
             <input id="naam" type="text" required>
             <span class="fout" aria-live="polite" id="fout-naam"></span>
           </div>
           <div class="veld">
-            <label for="logo">Logo (wordt geschaald naar 300×300 px)</label>
+            <label for="logo">Logo (wij maken het automatisch 300 × 300 px)</label>
             <input id="logo" type="file" accept="image/*" required>
             <span class="fout" aria-live="polite" id="fout-logo"></span>
             <img id="logo-preview" class="logo-preview verborgen" alt="Logovoorbeeld">
@@ -64,11 +64,11 @@
           <div class="velden-rij">
             <div class="veld">
               <label for="straat">Straat</label>
-              <input id="straat" type="text" readonly placeholder="wordt automatisch bepaald">
+              <input id="straat" type="text" readonly placeholder="vullen wij automatisch in">
             </div>
             <div class="veld">
               <label for="plaats">Plaats</label>
-              <input id="plaats" type="text" readonly placeholder="wordt automatisch bepaald">
+              <input id="plaats" type="text" readonly placeholder="vullen wij automatisch in">
             </div>
           </div>
           <span class="fout" aria-live="polite" id="fout-adres"></span>
@@ -94,7 +94,7 @@
       <!-- Stap 2: verificatie -->
       <div class="kaart verborgen" id="stap-verificatie">
         <h2>Verifieer uw gegevens</h2>
-        <p>Ter controle hebben wij verificatiecodes verstuurd naar uw e-mailadres en telefoonnummer.</p>
+        <p>Wij hebben twee codes gestuurd: één naar uw e-mail en één naar uw telefoon. Vul de codes hieronder in.</p>
         <div class="melding melding-info" id="demo-codes" role="status"></div>
         <div class="velden-rij">
           <div class="veld">
@@ -115,9 +115,9 @@
       <div class="kaart verborgen" id="stap-klaar">
         <h2>Aanvraag ontvangen 🎉</h2>
         <div class="melding melding-goed">
-          Uw aanvraag is geregistreerd en wordt beoordeeld.
+          Wij hebben uw aanvraag ontvangen en gaan deze bekijken.
           Uw unieke KassaGenda-code is <span class="demo-code" id="tenant-code"></span>.
-          Bewaar deze goed.
+          Bewaar deze code goed.
         </div>
         <a class="knop knop-secundair" href="index.html">Terug naar start</a>
       </div>
