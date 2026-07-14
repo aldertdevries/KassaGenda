@@ -167,6 +167,8 @@ const OberPoesDb = (() => {
     zetFactuurReeks(code, prefix, volgende) {
       return this.wijzig(code, { factuurReeks: { prefix, volgende } });
     },
+    zetBerichten(code, berichten) { return this.wijzig(code, { berichten }); },
+    zetFactuurVoettekst(code, tekst) { return this.wijzig(code, { factuurVoettekst: tekst }); },
     crediteerFactuur(id) {
       const db = lees();
       const origineel = db.facturen.find((f) => f.id === id);

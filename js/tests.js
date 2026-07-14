@@ -381,6 +381,35 @@ test('filterEnPagineer: zoekt, pagineert en klemt', () => {
   assert(Lijst.filterEnPagineer(items, '', ['naam'], 99).pagina === 3, 'pagina geklemd');
 });
 
+// --- Klantcommunicatie ---
+test('ics: start, eind over uurgrens en verplichte velden', () => {
+  const ics = Kalender.ics({ titel: 'Afspraak', locatie: 'Dam 1, Amsterdam',
+    omschrijving: 'Knippen', datum: '2026-07-14', tijd: '16:45', duurMinuten: 30, uid: 'AB12' });
+  assert(ics.includes('DTSTART:20260714T164500'));
+  assert(ics.includes('DTEND:20260714T171500'), 'eind over uurgrens');
+  assert(ics.includes('SUMMARY:Afspraak') && ics.includes('LOCATION:Dam 1, Amsterdam'));
+  assert(ics.includes('UID:AB12@kassagenda'));
+  assert(ics.startsWith('BEGIN:VCALENDAR') && ics.includes('END:VEVENT'));
+  assert(ics.includes('\r\n'), 'CRLF');
+});
+test('berichten: render vervangt placeholders, onbekend blijft staan', () => {
+  const uit = Berichten.render('Hoi {naam}, tot {datum}! {onbekend}', { naam: 'Jan', datum: 'morgen' });
+  assert(uit === 'Hoi Jan, tot morgen! {onbekend}', 'kreeg: ' + uit);
+});
+test('berichten: tenant-tekst wint van standaard', () => {
+  assert(Berichten.voor({}, 'boeking') === Berichten.STANDAARD.boeking);
+  assert(Berichten.voor({ berichten: { boeking: 'Eigen tekst {naam}' } }, 'boeking') === 'Eigen tekst {naam}');
+  assert(Berichten.voor({ berichten: { boeking: 'X' } }, 'factuur') === Berichten.STANDAARD.factuur);
+});
+test('zetBerichten en zetFactuurVoettekst', () => {
+  OberPoesDb.wisAlles();
+  const t = OberPoesDb.voegToe({ naam: 'Tekst BV' });
+  OberPoesDb.zetBerichten(t.code, { boeking: 'Eigen' });
+  OberPoesDb.zetFactuurVoettekst(t.code, 'Betaal snel.');
+  const na = OberPoesDb.vindTenant(t.code);
+  assert(na.berichten.boeking === 'Eigen' && na.factuurVoettekst === 'Betaal snel.');
+});
+
 OberPoesDb.wisAlles();
 
 const geslaagd = resultaten.filter((r) => r.ok).length;
