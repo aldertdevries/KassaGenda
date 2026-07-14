@@ -128,10 +128,10 @@
           <button class="knop knop-secundair knop-klein" id="knop-week-verder">Volgende →</button>
           <button class="knop knop-secundair knop-klein" id="knop-naar-lijst">Lijstweergave</button>
         </p>
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Tijd</th>${kop}</tr></thead>
           <tbody>${rijen}</tbody>
-        </table>
+        </table></div>
       </div>
       <div id="factuur-opbouw"></div>`;
     el('knop-week-terug').addEventListener('click', () => { weekStart = datumPlus(weekStart, -7); renderWeek(); });
@@ -173,10 +173,10 @@
           <input id="zoek-agenda" type="search" value="${agendaZoek}">
         </div>
         ${afspraken.length === 0 ? '<p>Geen afspraken gevonden.</p>' : `
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Wanneer</th><th scope="col">Klant</th><th scope="col">Adres</th><th scope="col">Contact</th><th scope="col"></th></tr></thead>
           <tbody>${rijen}</tbody>
-        </table>`}
+        </table></div>`}
         <p>
           <button class="knop knop-secundair knop-klein" id="agenda-vorige" ${pagina.pagina <= 1 ? 'disabled' : ''}>‹ Vorige</button>
           pagina ${pagina.pagina} van ${pagina.paginas} (${pagina.totaal} afspraken)
@@ -251,13 +251,13 @@
     function renderConcept() {
       el('concept-lijst').innerHTML = conceptRegels.length === 0
         ? '<p><em>Nog geen regels toegevoegd.</em></p>'
-        : `<table class="tabel"><tbody>${conceptRegels.map((r, i) => `
+        : `<div class="tabel-scroll"><table class="tabel"><tbody>${conceptRegels.map((r, i) => `
             <tr>
               <td>${r.naam}</td>
               <td>${btwLabel(r.btw)}</td>
               <td>${Facturatie.euro(r.bedragCent)}</td>
               <td><button class="knop knop-gevaar knop-klein" data-concept-weg="${i}">Verwijderen</button></td>
-            </tr>`).join('')}</tbody></table>`;
+            </tr>`).join('')}</tbody></table></div>`;
       el('concept-lijst').querySelectorAll('button[data-concept-weg]').forEach((k) => {
         k.addEventListener('click', () => {
           conceptRegels.splice(Number(k.dataset.conceptWeg), 1);
@@ -373,10 +373,10 @@
       <div class="kaart">
         <h2>Factuurregels</h2>
         ${regels.length === 0 ? '<p>Nog geen factuurregels gedefinieerd.</p>' : `
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Naam</th><th scope="col">Btw</th><th scope="col">Bedrag (incl. btw)</th><th scope="col"></th></tr></thead>
           <tbody>${rijen}</tbody>
-        </table>`}
+        </table></div>`}
         <h3>Regel toevoegen</h3>
         <div class="velden-rij">
           <div class="veld"><label for="regel-naam">Naam</label>
@@ -457,10 +457,10 @@
           </div>
         </div>
         ${lijst.length === 0 ? '<p>Geen facturen gevonden.</p>' : `
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Nummer</th><th scope="col">Datum</th><th scope="col">Klant</th><th scope="col">Bedrag</th><th scope="col">Status</th><th scope="col"></th></tr></thead>
           <tbody>${rijen}</tbody>
-        </table>
+        </table></div>
         <p><small>De betaalstatus wordt (in de demo) afgeleid van de Mollie-betaalpagina.</small></p>`}
         <p>
           <button class="knop knop-secundair knop-klein" id="facturen-vorige" ${pagina.pagina <= 1 ? 'disabled' : ''}>‹ Vorige</button>
@@ -520,10 +520,10 @@
     el('view-tijden').innerHTML = `
       <div class="kaart">
         <h2>Openingstijden</h2>
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Dag</th><th scope="col">Van</th><th scope="col">Tot</th></tr></thead>
           <tbody>${rijen}</tbody>
-        </table>
+        </table></div>
         <div class="velden-rij" style="max-width: 480px; margin-top: 1rem;">
           <div class="veld">
             <label for="slot-duur">Duur per afspraak</label>
@@ -541,10 +541,10 @@
       <div class="kaart">
         <h2>Niet-boekbare perioden</h2>
         ${blokkades.length === 0 ? '<p>Geen niet-boekbare perioden.</p>' : `
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Omschrijving</th><th scope="col">Wanneer</th><th scope="col"></th></tr></thead>
           <tbody>${blokRijen}</tbody>
-        </table>`}
+        </table></div>`}
         <h3>Periode toevoegen</h3>
         <div class="velden-rij">
           <div class="veld"><label for="blok-type">Type</label>
@@ -646,10 +646,10 @@
     el('view-berichten').innerHTML = `
       <div class="kaart">
         <h2>Berichten aan klanten</h2>
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Bericht</th><th scope="col">Tekst</th><th scope="col">Voorbeeld</th></tr></thead>
           <tbody>${rijen}</tbody>
-        </table>
+        </table></div>
         <p><small>Klik op een rij om de tekst te bewerken.</small></p>
       </div>
       <div id="bericht-detail"></div>`;

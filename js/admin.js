@@ -110,10 +110,10 @@
         ${aanvragen.length === 0
           ? `<p>Er zijn geen openstaande aanvragen.</p>
              <button class="knop knop-secundair" id="knop-demo">Demo-data laden</button>`
-          : `<table class="tabel">
+          : `<div class="tabel-scroll"><table class="tabel">
                <thead><tr><th scope="col">Logo</th><th scope="col">Organisatie</th><th scope="col">Code</th><th scope="col">Contact</th><th scope="col">Datum</th><th scope="col"></th></tr></thead>
                <tbody>${rijen}</tbody>
-             </table>`}
+             </table></div>`}
       </div>`;
     el('view-aanvragen').querySelectorAll('button[data-actie]').forEach((knop) => {
       knop.addEventListener('click', () => {
@@ -166,10 +166,10 @@
           </div>
         </div>
         ${lijst.length === 0 ? '<p>Geen tenants gevonden.</p>' : `
-        <table class="tabel">
+        <div class="tabel-scroll"><table class="tabel">
           <thead><tr><th scope="col">Logo</th><th scope="col">Organisatie</th><th scope="col">Code</th><th scope="col">Status</th><th scope="col">Plaats</th><th scope="col">Aangevraagd</th></tr></thead>
           <tbody>${rijen}</tbody>
-        </table>
+        </table></div>
         <p><small>Klik op een rij om de gegevens in te zien of te wijzigen.</small></p>`}
         <p>
           <button class="knop knop-secundair knop-klein" id="tenants-vorige" ${pagina.pagina <= 1 ? 'disabled' : ''}>‹ Vorige</button>

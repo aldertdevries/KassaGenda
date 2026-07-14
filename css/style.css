@@ -19,7 +19,9 @@ body {
   background: var(--bg);
   color: var(--charcoal);
   line-height: 1.6;
+  overflow-x: hidden;
 }
+img, canvas { max-width: 100%; }
 h1, h2, h3 { font-family: var(--font-koppen); font-weight: 600; }
 .container { max-width: 900px; margin: 0 auto; padding: 0 1.25rem; }
 
@@ -104,6 +106,7 @@ h1, h2, h3 { font-family: var(--font-koppen); font-weight: 600; }
 .badge-inactief { background: var(--grijs); }
 
 /* Tabellen */
+.tabel-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .tabel { width: 100%; border-collapse: collapse; }
 .tabel th, .tabel td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--rand); vertical-align: middle; }
 .tabel th { background: #EDF2F7; color: var(--charcoal); font-family: var(--font-body); font-weight: 600; }
@@ -137,3 +140,20 @@ h1, h2, h3 { font-family: var(--font-koppen); font-weight: 600; }
 .tabel .demo-code { font-size: 0.95rem; }
 .logo-preview { width: 150px; height: 150px; border: 1px dashed var(--rand); border-radius: 12px; background: #fff; object-fit: contain; }
 .site-footer { text-align: center; color: var(--grijstekst); padding: 2rem 0; font-size: 0.9rem; }
+
+/* Mobiel (smalle schermen) */
+@media (max-width: 640px) {
+  .container { padding: 0 0.9rem; }
+  .header-inner { flex-direction: column; gap: 0.6rem; padding: 0.8rem 0.9rem; text-align: center; }
+  .site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 0; }
+  .site-header nav a { margin: 0 0.6rem; }
+  .hero { padding: 2rem 0 1.5rem; }
+  .hero h1 { font-size: 1.7rem; }
+  .hero p { font-size: 1rem; }
+  .kaart { padding: 1.1rem; border-radius: 16px; }
+  .velden-rij { flex-direction: column; gap: 0; }
+  .knop { width: 100%; margin-bottom: 0.5rem; }
+  .knop-klein { width: auto; margin-bottom: 0; }
+  .keuze-grid .knop, .keuze-grid .knop-klein { width: auto; margin-bottom: 0; }
+  .keuze-grid button { min-height: 44px; }
+}
