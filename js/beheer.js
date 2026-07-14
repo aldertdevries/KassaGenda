@@ -64,7 +64,7 @@
 
   // --- Views ---
   function toonView(naam) {
-    ['agenda', 'regels', 'facturen', 'tijden', 'profiel'].forEach((v) => {
+    ['agenda', 'regels', 'facturen', 'tijden', 'berichten', 'profiel'].forEach((v) => {
       el('view-' + v).classList.toggle('verborgen', v !== naam);
       el('menu-' + v).classList.toggle('actief', v === naam);
       el('menu-' + v).setAttribute('aria-current', v === naam ? 'page' : 'false');
@@ -73,9 +73,10 @@
     if (naam === 'regels') renderRegels();
     if (naam === 'facturen') renderFacturen();
     if (naam === 'tijden') renderTijden();
+    if (naam === 'berichten') renderBerichten();
     if (naam === 'profiel') renderProfiel();
   }
-  ['agenda', 'regels', 'facturen', 'tijden', 'profiel'].forEach((v) => {
+  ['agenda', 'regels', 'facturen', 'tijden', 'berichten', 'profiel'].forEach((v) => {
     el('menu-' + v).addEventListener('click', (e) => { e.preventDefault(); toonView(v); });
   });
 
@@ -333,11 +334,14 @@
         <div class="melding melding-info">
           <strong>Aan:</strong> ${factuur.klantEmail}<br>
           <strong>Onderwerp:</strong> Factuur ${factuur.nummer} van ${t.naam}<br><br>
-          Beste ${factuur.klantNaam},<br><br>
-          Hierbij ontvangt u factuur ${factuur.nummer} (${Facturatie.euro(totaal.inclCent)})
-          voor uw afspraak. U kunt eenvoudig online betalen via
-          <a href="betaal.html?factuur=${factuur.id}" target="_blank">deze Mollie-betaallink</a>.<br><br>
-          Met vriendelijke groet,<br>${t.naam}<br><br>
+          ${Berichten.naarHtml(Berichten.render(Berichten.voor(t, 'factuur'), {
+            naam: factuur.klantNaam,
+            tenant: t.naam,
+            nummer: factuur.nummer,
+            bedrag: Facturatie.euro(totaal.inclCent),
+          }))}<br><br>
+          <strong>Betaallink:</strong>
+          <a href="betaal.html?factuur=${factuur.id}" target="_blank">online betalen via Mollie</a><br>
           <strong>Bijlage:</strong>
           <a href="factuur.html?id=${factuur.id}" target="_blank">factuur-${factuur.nummer}.pdf</a>
         </div>
@@ -619,6 +623,42 @@
     });
   }
 
+  // --- Berichten ---
+  const BERICHT_TYPES = [
+    { type: 'boeking', label: 'Boekingsbevestiging', velden: '{naam} {tenant} {datum} {tijd}' },
+    { type: 'verzet', label: 'Verzetbevestiging', velden: '{naam} {tenant} {datum} {tijd}' },
+    { type: 'factuur', label: 'Factuurmail', velden: '{naam} {tenant} {nummer} {bedrag}' },
+    { type: 'betaling', label: 'Betalingsbevestiging', velden: '{naam} {tenant} {nummer} {bedrag}' },
+  ];
+
+  function renderBerichten() {
+    const t = huidigeTenant();
+    el('view-berichten').innerHTML = `
+      <div class="kaart">
+        <h2>Berichten aan klanten</h2>
+        <p>Pas de teksten van de automatische berichten aan. De invulvelden tussen
+        accolades worden bij verzending vervangen door de echte gegevens.</p>
+        ${BERICHT_TYPES.map((b) => `
+        <div class="veld">
+          <label for="bericht-${b.type}">${b.label} <small>(beschikbaar: ${b.velden})</small></label>
+          <textarea id="bericht-${b.type}" rows="6">${Berichten.voor(t, b.type)}</textarea>
+        </div>`).join('')}
+        <button class="knop" id="knop-berichten-opslaan">Opslaan</button>
+        <button class="knop knop-secundair" id="knop-berichten-standaard">Herstel standaardteksten</button>
+        <span class="melding melding-goed verborgen" id="berichten-opgeslagen" role="status">Opgeslagen.</span>
+      </div>`;
+    el('knop-berichten-opslaan').addEventListener('click', () => {
+      const berichten = {};
+      BERICHT_TYPES.forEach((b) => { berichten[b.type] = el('bericht-' + b.type).value; });
+      OberPoesDb.zetBerichten(code, berichten);
+      el('berichten-opgeslagen').classList.remove('verborgen');
+    });
+    el('knop-berichten-standaard').addEventListener('click', () => {
+      OberPoesDb.zetBerichten(code, {});
+      renderBerichten();
+    });
+  }
+
   // --- Profiel ---
   function renderProfiel() {
     const t = huidigeTenant();
@@ -642,6 +682,24 @@
         <button class="knop knop-secundair" id="knop-kopieer">Kopieer link</button>
         <span class="melding melding-goed verborgen" id="gekopieerd" role="status">Gekopieerd.</span>
         <div class="veld" style="margin-top: 1rem;">
+          <label>QR-code naar uw boekingspagina (voor posters, balie of website)</label><br>
+          <img id="qr-code" alt="QR-code naar uw boekingspagina" width="220" height="220"
+            crossorigin="anonymous"
+            src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(boekLink)}"
+            style="border: 1px solid var(--rand); border-radius: 12px; background: #fff;">
+          <p class="fout verborgen" id="qr-fout">QR-service niet bereikbaar — gebruik de boekingslink hierboven.</p>
+        </div>
+        <button class="knop knop-secundair" id="knop-qr-kopieer">Kopieer QR</button>
+        <button class="knop knop-secundair" id="knop-qr-download">Download QR</button>
+        <span class="melding melding-goed verborgen" id="qr-gekopieerd" role="status">QR gekopieerd.</span>
+        <span class="fout" id="qr-melding" aria-live="polite"></span>
+        <div class="veld" style="margin-top: 1rem;">
+          <label for="factuur-voettekst">Factuurtekst (onderaan elke factuur)</label>
+          <textarea id="factuur-voettekst" rows="3">${t.factuurVoettekst || Berichten.STANDAARD_FACTUURVOETTEKST}</textarea>
+        </div>
+        <button class="knop" id="knop-voettekst-opslaan">Factuurtekst opslaan</button>
+        <span class="melding melding-goed verborgen" id="voettekst-opgeslagen" role="status">Opgeslagen.</span>
+        <div class="veld" style="margin-top: 1rem;">
           <label for="mollie-id">Mollie API id (voor betaallinks)</label>
           <input id="mollie-id" type="text" value="${t.mollieApiId || ''}" placeholder="bijv. live_AbC123">
         </div>
@@ -663,6 +721,41 @@
       try { await navigator.clipboard.writeText(veld.value); }
       catch (e) { document.execCommand('copy'); }
       el('gekopieerd').classList.remove('verborgen');
+    });
+    el('qr-code').addEventListener('error', () => {
+      el('qr-code').classList.add('verborgen');
+      el('qr-fout').classList.remove('verborgen');
+    });
+    const qrCanvas = () => {
+      const img = el('qr-code');
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || 220;
+      c.height = img.naturalHeight || 220;
+      c.getContext('2d').drawImage(img, 0, 0);
+      return c;
+    };
+    el('knop-qr-kopieer').addEventListener('click', async () => {
+      try {
+        const blob = await new Promise((r) => qrCanvas().toBlob(r, 'image/png'));
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        el('qr-gekopieerd').classList.remove('verborgen');
+      } catch (e) {
+        el('qr-melding').textContent = 'Kopiëren niet gelukt — probeer Download QR.';
+      }
+    });
+    el('knop-qr-download').addEventListener('click', () => {
+      try {
+        const a = document.createElement('a');
+        a.download = 'boekingslink-qr.png';
+        a.href = qrCanvas().toDataURL('image/png');
+        a.click();
+      } catch (e) {
+        el('qr-melding').textContent = 'Downloaden niet gelukt — de QR-service staat dit mogelijk niet toe.';
+      }
+    });
+    el('knop-voettekst-opslaan').addEventListener('click', () => {
+      OberPoesDb.zetFactuurVoettekst(code, el('factuur-voettekst').value.trim());
+      el('voettekst-opgeslagen').classList.remove('verborgen');
     });
     el('knop-mollie-opslaan').addEventListener('click', () => {
       OberPoesDb.zetMollieApiId(code, el('mollie-id').value.trim());

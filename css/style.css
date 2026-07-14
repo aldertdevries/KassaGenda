@@ -67,6 +67,11 @@ h1, h2, h3 { font-family: var(--font-koppen); font-weight: 600; }
   width: 100%; padding: 0.55rem 0.7rem; border: 1px solid var(--rand);
   border-radius: 10px; font-size: 1rem; background: #fff; font-family: var(--font-body);
 }
+.veld textarea {
+  width: 100%; padding: 0.55rem 0.7rem; border: 1px solid var(--rand);
+  border-radius: 10px; font-size: 1rem; background: #fff; font-family: var(--font-body);
+}
+.veld textarea:focus { outline: 2px solid var(--charcoal); border-color: var(--charcoal); }
 .veld input[readonly] { background: #EDF2F7; color: var(--grijstekst); }
 .veld input:focus, .veld select:focus { outline: 2px solid var(--charcoal); border-color: var(--charcoal); }
 .veld .fout { color: var(--rood); font-size: 0.85rem; display: block; min-height: 1.1rem; }
