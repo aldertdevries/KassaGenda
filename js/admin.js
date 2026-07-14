@@ -65,7 +65,7 @@
     const perStatus = (s) => tenants.filter((t) => t.status === s).length;
     const tegel = (label, waarde) =>
       `<div class="kaart" style="flex:1; text-align:center; margin:0;">
-        <div style="font-size:2rem; font-weight:700; color:var(--paars-donker)">${waarde}</div>${label}</div>`;
+        <div class="card-value">${waarde}</div><div class="card-title">${label}</div></div>`;
     const aanvragen = tenants.filter((t) => t.status === 'Aangevraagd');
     el('view-dashboard').innerHTML = `
       <div class="kaart"><h2>Dashboard</h2>

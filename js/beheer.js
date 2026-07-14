@@ -13,7 +13,7 @@
     el('niet-beschikbaar').classList.remove('verborgen');
     return;
   }
-  el('kop-naam').textContent = `🐾 ${tenant.naam} — beheer`;
+  el('kop-naam').textContent = `${tenant.naam} — beheer`;
 
   // --- Login: wachtwoordloos via verificatie van e-mail of telefoon ---
   function toonApp() {
@@ -113,8 +113,8 @@
     const rijen = alleTijden.map((tijd) => `
       <tr><th scope="row">${tijd}</th>${dagen.map((iso) => {
         const slot = perDag[iso].find((s) => s.tijd === tijd);
-        if (!slot) return '<td style="background:#f0eef8"></td>';
-        if (!slot.vrij) return '<td style="background:#e3e0ef" title="geblokkeerd">✕</td>';
+        if (!slot) return '<td style="background:#EDF2F7"></td>';
+        if (!slot.vrij) return '<td style="background:#E2E8F0" title="geblokkeerd">✕</td>';
         const namen = afspraken.filter((a) => a.datum === iso && a.tijd === tijd).map((a) => a.naam);
         return `<td>${namen.join('<br>')}</td>`;
       }).join('')}</tr>`).join('');
