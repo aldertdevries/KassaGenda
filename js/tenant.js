@@ -129,15 +129,30 @@
       `Uw afspraak bij <strong>${tenant.naam}</strong> op <strong>${datumLabel(afspraak.datum)}</strong> `
       + `om <strong>${afspraak.tijd}</strong> is bevestigd.<br>`
       + `Locatie: ${tenant.straat} ${tenant.huisnummer}, ${tenant.plaats}.`;
+    const mailTekst = Berichten.render(Berichten.voor(tenant, 'boeking'), {
+      naam: afspraak.naam,
+      tenant: tenant.naam,
+      datum: datumLabel(afspraak.datum),
+      tijd: afspraak.tijd,
+    });
+    const ics = Kalender.ics({
+      titel: `Afspraak bij ${tenant.naam}`,
+      locatie: `${tenant.straat} ${tenant.huisnummer}, ${tenant.plaats}`,
+      omschrijving: afspraak.extra || 'Afspraak',
+      datum: afspraak.datum,
+      tijd: afspraak.tijd,
+      duurMinuten: tenant.slotDuur || 30,
+      uid: afspraak.id,
+    });
     el('bevestiging-mail').innerHTML =
       `<strong>Demo — bevestigingsmail:</strong><br>
       <strong>Aan:</strong> ${afspraak.email}<br>
       <strong>Onderwerp:</strong> Afspraakbevestiging — ${tenant.naam}<br><br>
-      Beste ${afspraak.naam},<br><br>
-      Uw afspraak bij ${tenant.naam} op ${datumLabel(afspraak.datum)} om ${afspraak.tijd}
-      is bevestigd. 24 uur voor uw afspraak ontvangt u een herinnering per e-mail (gesimuleerd).<br>
+      ${Berichten.naarHtml(mailTekst)}<br><br>
       Wilt u de afspraak wijzigen of annuleren? Gebruik dan
-      <a href="afspraak.html?id=${afspraak.id}">deze link</a>.`;
+      <a href="afspraak.html?id=${afspraak.id}">deze link</a>.<br>
+      <strong>Bijlage:</strong>
+      <a download="afspraak.ics" href="${Kalender.icsDataUrl(ics)}">📅 afspraak.ics</a>`;
     el('stap-slot').classList.add('verborgen');
     el('stap-gegevens').classList.add('verborgen');
     el('stap-klaar').classList.remove('verborgen');

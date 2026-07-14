@@ -82,6 +82,29 @@
           return;
         }
         klaar(`Uw afspraak is verzet naar ${datumLabel(nieuw.datum)} om ${nieuw.tijd}.`);
+        const mailTekst = Berichten.render(Berichten.voor(tenant, 'verzet'), {
+          naam: afspraak.naam,
+          tenant: tenant.naam,
+          datum: datumLabel(nieuw.datum),
+          tijd: nieuw.tijd,
+        });
+        const ics = Kalender.ics({
+          titel: `Afspraak bij ${tenant.naam}`,
+          locatie: `${tenant.straat} ${tenant.huisnummer}, ${tenant.plaats}`,
+          omschrijving: nieuw.extra || 'Afspraak',
+          datum: nieuw.datum,
+          tijd: nieuw.tijd,
+          duurMinuten: tenant.slotDuur || 30,
+          uid: nieuw.id,
+        });
+        el('verzet-mail').innerHTML =
+          `<strong>Demo — bevestigingsmail:</strong><br>
+          <strong>Aan:</strong> ${afspraak.email}<br>
+          <strong>Onderwerp:</strong> Afspraak verzet — ${tenant.naam}<br><br>
+          ${Berichten.naarHtml(mailTekst)}<br><br>
+          <strong>Bijlage:</strong>
+          <a download="afspraak.ics" href="${Kalender.icsDataUrl(ics)}">📅 afspraak.ics</a>`;
+        el('verzet-mail').classList.remove('verborgen');
       });
     });
   }

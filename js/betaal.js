@@ -34,5 +34,17 @@
   el('knop-betaal').addEventListener('click', () => {
     OberPoesDb.zetFactuurStatus(factuur.id, 'Betaald');
     toonBetaald();
+    const bedrag = Facturatie.euro(Facturatie.totalen(factuur.regels).inclCent);
+    const mailTekst = Berichten.render(Berichten.voor(tenant, 'betaling'), {
+      naam: factuur.klantNaam,
+      tenant: tenant.naam,
+      nummer: factuur.nummer,
+      bedrag,
+    });
+    el('betaal-mail-inhoud').innerHTML =
+      `<strong>Aan:</strong> ${factuur.klantEmail}<br>
+      <strong>Onderwerp:</strong> Betaling ontvangen — factuur ${factuur.nummer}<br><br>
+      ${Berichten.naarHtml(mailTekst)}`;
+    el('betaal-mail').classList.remove('verborgen');
   });
 })();
