@@ -10,15 +10,25 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    .factuur-kop { display: flex; justify-content: space-between; align-items: center; }
-    .factuur-kop img { width: 90px; height: 90px; border-radius: 10px; border: 1px solid var(--rand); }
-    .factuur-meta { text-align: right; }
+    .factuur-kop { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; }
+    .factuur-kop img { width: 56px; height: 56px; border-radius: 8px; border: 1px solid var(--rand); }
+    .f-afzender h1 { margin: 0; font-size: 1.25rem; }
+    .f-afzender p { margin: 0; color: var(--grijstekst); font-size: 0.9rem; }
+    .f-titel h2 { margin: 0 0 0.5rem; font-size: 1.6rem; letter-spacing: 3px; text-align: right; }
+    .f-meta { font-size: 0.9rem; border-collapse: collapse; margin-left: auto; }
+    .f-meta td { padding: 0.1rem 0 0.1rem 1.5rem; text-align: right; }
+    .f-meta td:first-child { color: var(--grijstekst); padding-left: 0; text-align: left; }
+    .f-aan { margin: 1.5rem 0; }
+    .f-aan h3 { margin: 0 0 0.25rem; font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--grijstekst); }
     .totalen td { border-bottom: none; }
     .totalen tr:last-child td { font-weight: 700; border-top: 2px solid var(--charcoal); }
+    .f-voettekst { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--rand);
+      color: var(--grijstekst); font-size: 0.9rem; }
     @media print {
       .geen-print, .site-footer { display: none !important; }
       body { background: #fff; }
-      .kaart { border: none; }
+      .kaart { box-shadow: none; border-radius: 0; }
     }
   </style>
 </head>
@@ -30,30 +40,39 @@
     </div>
     <div class="kaart verborgen" id="factuur">
       <div class="factuur-kop">
-        <div style="display:flex; align-items:center; gap:1rem;">
+        <div class="f-afzender" style="display:flex; align-items:center; gap:1rem;">
           <img id="f-logo" alt="Logo">
           <div>
-            <h1 id="f-tenant" style="margin:0"></h1>
-            <p id="f-tenant-adres" style="margin:0; color:#666"></p>
+            <h1 id="f-tenant"></h1>
+            <p id="f-tenant-adres"></p>
           </div>
         </div>
-        <div class="factuur-meta">
-          <h2 style="margin:0">Factuur <span id="f-nummer"></span></h2>
-          <p style="margin:0">Datum: <span id="f-datum"></span><br>
-          Status: <span id="f-status"></span></p>
+        <div class="f-titel">
+          <h2 id="f-soort">FACTUUR</h2>
+          <table class="f-meta"><tbody>
+            <tr><td>Factuurnummer</td><td id="f-nummer"></td></tr>
+            <tr><td>Factuurdatum</td><td id="f-datum"></td></tr>
+            <tr><td>Vervaldatum</td><td id="f-vervaldatum"></td></tr>
+            <tr><td>Betalingskenmerk</td><td id="f-kenmerk"></td></tr>
+            <tr><td>Status</td><td id="f-status"></td></tr>
+          </tbody></table>
         </div>
       </div>
-      <hr>
-      <p><strong>Aan:</strong> <span id="f-klant"></span><br>
-      <strong>Betreft:</strong> afspraak op <span id="f-afspraak"></span></p>
+      <div class="f-aan">
+        <h3>Factuur aan</h3>
+        <span id="f-klant"></span><br>
+        <span>Betreft: afspraak op <span id="f-afspraak"></span></span>
+      </div>
+      <p class="melding melding-info verborgen" id="f-credit" role="status"></p>
       <table class="tabel" id="f-regels-tabel">
-        <thead><tr><th>Omschrijving</th><th>Btw</th><th style="text-align:right">Bedrag (incl.)</th></tr></thead>
+        <thead><tr><th scope="col">Omschrijving</th><th scope="col">Btw</th><th scope="col" style="text-align:right">Bedrag (incl.)</th></tr></thead>
         <tbody id="f-regels"></tbody>
       </table>
       <table class="tabel totalen" style="max-width: 320px; margin-left: auto; margin-top: 1rem;">
         <tbody id="f-totalen"></tbody>
       </table>
-      <p class="geen-print" style="margin-top: 2rem;">
+      <p class="f-voettekst" id="f-voettekst"></p>
+      <p class="geen-print" style="margin-top: 1.5rem;">
         <button class="knop" onclick="window.print()">Opslaan als PDF (afdrukken)</button>
       </p>
     </div>
@@ -62,6 +81,7 @@
   <script src="js/validatie.js"></script>
   <script src="js/agenda.js"></script>
   <script src="js/facturatie.js"></script>
+  <script src="js/berichten.js"></script>
   <script src="js/db.js"></script>
   <script src="js/factuur.js"></script>
 </body>

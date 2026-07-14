@@ -18,7 +18,17 @@
     `${tenant.straat} ${tenant.huisnummer}, ${tenant.postcode} ${tenant.plaats} · KvK ${tenant.kvk}`;
   el('f-nummer').textContent = factuur.nummer;
   el('f-datum').textContent = new Date(factuur.gemaaktOp).toLocaleDateString('nl-NL');
+  const verval = new Date(factuur.gemaaktOp);
+  verval.setDate(verval.getDate() + 14);
+  el('f-vervaldatum').textContent = verval.toLocaleDateString('nl-NL');
+  el('f-kenmerk').textContent = factuur.nummer;
   el('f-status').textContent = factuur.status;
+  if (factuur.creditVoor) {
+    el('f-soort').textContent = 'CREDITFACTUUR';
+    el('f-credit').textContent = `Creditfactuur voor factuur ${factuur.creditVoor}.`;
+    el('f-credit').classList.remove('verborgen');
+  }
+  el('f-voettekst').textContent = tenant.factuurVoettekst || Berichten.STANDAARD_FACTUURVOETTEKST;
   el('f-klant').textContent = `${factuur.klantNaam} (${factuur.klantEmail})`;
   el('f-afspraak').textContent = afspraak ? `${afspraak.datum} om ${afspraak.tijd}` : 'onbekend';
 
