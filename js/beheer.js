@@ -633,29 +633,63 @@
 
   function renderBerichten() {
     const t = huidigeTenant();
+    const rijen = BERICHT_TYPES.map((b) => {
+      const eigen = !!(t.berichten && t.berichten[b.type]);
+      const eersteRegel = Berichten.voor(t, b.type).split('\n')[0];
+      return `
+      <tr class="klikbaar" data-bericht="${b.type}">
+        <td><strong>${b.label}</strong></td>
+        <td><span class="badge ${eigen ? 'badge-actief' : 'badge-inactief'}">${eigen ? 'Aangepast' : 'Standaard'}</span></td>
+        <td>${eersteRegel}</td>
+      </tr>`;
+    }).join('');
     el('view-berichten').innerHTML = `
       <div class="kaart">
         <h2>Berichten aan klanten</h2>
-        <p>Pas de teksten van de automatische berichten aan. De invulvelden tussen
-        accolades worden bij verzending vervangen door de echte gegevens.</p>
-        ${BERICHT_TYPES.map((b) => `
-        <div class="veld">
-          <label for="bericht-${b.type}">${b.label} <small>(beschikbaar: ${b.velden})</small></label>
-          <textarea id="bericht-${b.type}" rows="6">${Berichten.voor(t, b.type)}</textarea>
-        </div>`).join('')}
-        <button class="knop" id="knop-berichten-opslaan">Opslaan</button>
-        <button class="knop knop-secundair" id="knop-berichten-standaard">Herstel standaardteksten</button>
-        <span class="melding melding-goed verborgen" id="berichten-opgeslagen" role="status">Opgeslagen.</span>
-      </div>`;
-    el('knop-berichten-opslaan').addEventListener('click', () => {
-      const berichten = {};
-      BERICHT_TYPES.forEach((b) => { berichten[b.type] = el('bericht-' + b.type).value; });
-      OberPoesDb.zetBerichten(code, berichten);
-      el('berichten-opgeslagen').classList.remove('verborgen');
+        <table class="tabel">
+          <thead><tr><th scope="col">Bericht</th><th scope="col">Tekst</th><th scope="col">Voorbeeld</th></tr></thead>
+          <tbody>${rijen}</tbody>
+        </table>
+        <p><small>Klik op een rij om de tekst te bewerken.</small></p>
+      </div>
+      <div id="bericht-detail"></div>`;
+    el('view-berichten').querySelectorAll('tr.klikbaar').forEach((rij) => {
+      rij.addEventListener('click', () => renderBerichtDetail(rij.dataset.bericht));
     });
-    el('knop-berichten-standaard').addEventListener('click', () => {
-      OberPoesDb.zetBerichten(code, {});
+  }
+
+  function renderBerichtDetail(type) {
+    const info = BERICHT_TYPES.find((b) => b.type === type);
+    el('bericht-detail').innerHTML = `
+      <div class="kaart">
+        <h2>${info.label}</h2>
+        <p>Beschikbare invulvelden: <code>${info.velden}</code> — deze worden bij
+        verzending vervangen door de echte gegevens.</p>
+        <div class="veld">
+          <label for="bewerk-bericht">Tekst</label>
+          <textarea id="bewerk-bericht" rows="8">${Berichten.voor(huidigeTenant(), type)}</textarea>
+        </div>
+        <button class="knop" id="knop-bericht-opslaan">Opslaan</button>
+        <button class="knop knop-secundair" id="knop-bericht-standaard">Herstel standaardtekst</button>
+        <button class="knop knop-secundair" id="knop-bericht-sluit">Sluiten</button>
+        <span class="melding melding-goed verborgen" id="bericht-opgeslagen" role="status">Opgeslagen.</span>
+      </div>`;
+    el('bericht-detail').scrollIntoView({ behavior: 'smooth' });
+
+    function bijwerken(nieuweTekst) {
+      const berichten = { ...(huidigeTenant().berichten || {}) };
+      if (nieuweTekst === null) delete berichten[type];
+      else berichten[type] = nieuweTekst;
+      OberPoesDb.zetBerichten(code, berichten);
       renderBerichten();
+      renderBerichtDetail(type);
+      el('bericht-opgeslagen').classList.remove('verborgen');
+    }
+    el('knop-bericht-opslaan').addEventListener('click', () =>
+      bijwerken(el('bewerk-bericht').value));
+    el('knop-bericht-standaard').addEventListener('click', () => bijwerken(null));
+    el('knop-bericht-sluit').addEventListener('click', () => {
+      el('bericht-detail').innerHTML = '';
     });
   }
 
