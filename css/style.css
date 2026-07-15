@@ -141,12 +141,28 @@ h1, h2, h3 { font-family: var(--font-koppen); font-weight: 600; }
 .logo-preview { width: 150px; height: 150px; border: 1px dashed var(--rand); border-radius: 12px; background: #fff; object-fit: contain; }
 .site-footer { text-align: center; color: var(--grijstekst); padding: 2rem 0; font-size: 0.9rem; }
 
+/* Hamburgerknop (alleen zichtbaar op mobiel) */
+.menu-knop {
+  display: none; background: none; border: none; cursor: pointer;
+  font-size: 1.6rem; line-height: 1; color: var(--charcoal);
+  padding: 0.25rem 0.4rem; border-radius: 8px;
+}
+
 /* Mobiel (smalle schermen) */
 @media (max-width: 640px) {
   .container { padding: 0 0.9rem; }
-  .header-inner { flex-direction: column; gap: 0.6rem; padding: 0.8rem 0.9rem; text-align: center; }
-  .site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 0; }
-  .site-header nav a { margin: 0 0.6rem; }
+  .header-inner { flex-wrap: wrap; align-items: center; padding: 0.7rem 0.9rem; }
+  .logo { font-size: 1.3rem; }
+  .menu-knop { display: block; order: 2; margin-left: auto; }
+  .site-header nav { order: 3; width: 100%; display: none; flex-direction: column; margin-top: 0.6rem; }
+  .site-header.menu-open nav:not(.verborgen) { display: flex; }
+  .site-header nav a {
+    margin: 0; padding: 0.8rem 0.25rem; border-bottom: 1px solid var(--rand);
+  }
+  .site-header nav a.actief, .site-header nav a:hover {
+    border-bottom: 1px solid var(--rand); border-left: 4px solid var(--roze); padding-left: 0.6rem;
+  }
+  nav.verborgen ~ .menu-knop { display: none; }
   .hero { padding: 2rem 0 1.5rem; }
   .hero h1 { font-size: 1.7rem; }
   .hero p { font-size: 1rem; }
